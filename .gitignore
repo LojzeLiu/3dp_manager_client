@@ -1,0 +1,11 @@
+/temp_data/
+/logs/
+/build/
+/dist/
+/.data/auth_key.txt
+/.env
+/.data/user_info.json
+/.data/wechat_path.txt
+/bambu.db
+*.db
+/BambuPrinter.log.jsonl

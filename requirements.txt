@@ -1,0 +1,15 @@
+wxpython~=4.2.1
+mitmproxy~=9.0.1
+winproxy~=0.3.0a1
+requests~=2.31.0
+wxasync~=0.49
+cx_Freeze
+WMI~=1.5.1
+pyDes~=2.0.1
+python-dotenv
+pycryptodome~=3.21.0
+psutil~=5.9.8
+django-environ~=0.11.2
+bambu-printer-manager
+
+pyttsx3~=2.98

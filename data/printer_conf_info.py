@@ -1,0 +1,50 @@
+import sqlite3
+
+import models
+
+
+class PrinterConfInfo(object):
+    def __init__(self, db_name="bambu.db"):
+        self.conn = sqlite3.connect(db_name)
+        self.cursor = self.conn.cursor()
+        self.setup_table()
+
+    def setup_table(self):
+        self.cursor.execute('''
+                CREATE TABLE IF NOT EXISTS conf_info (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT,
+                    hostname TEXT,
+                    access_code TEXT,
+                    serial_number TEXT
+                )
+            ''')
+        self.conn.commit()
+
+    def add_conf_info(self, conf_info):
+        self.cursor.execute('''
+                INSERT INTO conf_info (name, hostname, access_code, serial_number)
+                VALUES (?, ?, ?, ?)
+            ''', (conf_info.name, conf_info.hostname, conf_info.access_code, conf_info.serial_number))
+        self.conn.commit()
+
+    def get_all_conf_info(self):
+        self.cursor.execute('SELECT * FROM conf_info')
+        rows = self.cursor.fetchall()
+        return [models.BambuConfInfo(name=row[1], hostname=row[2], access_code=row[3], serial_number=row[4]) for row in
+                rows]
+
+    def update_conf_info(self, id, conf_info):
+        self.cursor.execute('''
+                UPDATE conf_info
+                SET name = ?, hostname = ?, access_code = ?, serial_number = ?
+                WHERE id = ?
+            ''', (conf_info.name, conf_info.hostname, conf_info.access_code, conf_info.serial_number, id))
+        self.conn.commit()
+
+    def delete_conf_info(self, id):
+        self.cursor.execute('DELETE FROM conf_info WHERE id = ?', (id,))
+        self.conn.commit()
+
+    def __del__(self):
+        self.conn.close()
