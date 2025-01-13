@@ -10,6 +10,7 @@ class PrinterInfo(object):
         self.time_remaining = ""  # 剩余时间
         self.end_time = ""  # 预计结束时间
         self.percent_complete = 0  # 完成进度
+        self.gcode_file = "--"
 
         self._on_update = None  # 完成进度
 

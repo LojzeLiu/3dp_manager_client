@@ -78,11 +78,9 @@ class MsgHandle:
             engine.runAndWait()
 
     async def send_messages_to_wechat(self):
-        print('run send_messages_to_wechat')
         while True:
             # 发送已记录的消息到微信
             message = await self.send_msg_queue.get()  # 从消息队列中获取消息，若为空则阻塞
-            print('send txt:', message.msg)
             self.send_txt_msg_to_wechat(message.msg)
             self.send_msg_queue.task_done()  # 标记消息处理完成
 
@@ -108,7 +106,6 @@ class MsgHandle:
         :return:
         """
         # 向消息队列添加消息
-        print('add msg:', message)
         msg = MsgInfo(message, level)
         self.loop.call_soon_threadsafe(self.msg_queue.put_nowait, msg)  # 使用 call_soon_threadsafe 确保线程安全
         self.send_loop.call_soon_threadsafe(self.send_msg_queue.put_nowait, msg)  # 使用 call_soon_threadsafe 确保线程安全

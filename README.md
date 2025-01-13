@@ -1,5 +1,6 @@
 ## 相关参数记录
-### Bambu 打印机信息解释
+
+### BambuPrinter 打印机信息解释
 
 ```aiignore
 ----------
@@ -60,4 +61,5 @@
 ```
 
 ## 参考资料
+
 [bambu-printer-manager](https://synman.github.io/bambu-printer-manager/)

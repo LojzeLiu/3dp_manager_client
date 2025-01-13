@@ -17,6 +17,8 @@ def calculate_future_time(minutes_to_add):
     :param minutes_to_add: 要增加的分钟数（整数）
     :return: 计算后的时间字符串，格式为 "YYYY-MM-DD HH:MM"
     """
+    if minutes_to_add <= 0:
+        return ""
     # 获取当前时间
     current_time = datetime.now()
 
@@ -95,12 +97,14 @@ class BambuPrinterService:
             curr_printer.start_session()
             self._bambu_session_map[bambu_config.name] = curr_printer
 
-    def to_update(self, printer: BambuPrinter):
+    @staticmethod
+    def to_update(printer: BambuPrinter):
         for printer_state in PrinterStateList:
             if printer_state.serial_number == printer.config.serial_number:
                 printer_state.gcode_state = get_gcode_state_title(printer.gcode_state)
                 printer_state.gcode_state_color = get_gcode_state_color(printer.gcode_state)
                 printer_state.layer_state = f'{printer.current_layer}/{printer.layer_count}'
+                printer_state.gcode_file = printer.gcode_file
                 printer_state.time_remaining = convert_minutes(printer.time_remaining)
                 printer_state.end_time = calculate_future_time(printer.time_remaining)
                 printer_state.percent_complete = printer.percent_complete
@@ -118,7 +122,7 @@ class BambuPrinterService:
                             hms_desc = item['desc']
                             utils.logger.debug(f'hms code:{code}; desc:{hms_desc}; attr:{attr}')
                         else:
-                            utils.logger.error(f'未知消息类型， Code：{code}; Attr:{attr}')
+                            utils.logger.error(f'Unknown msg type, Code：{code}; Attr:{attr}')
 
                 if printer.gcode_state == "FAILED" and printer_state.last_gcode_state == "RUNNING":
                     # 发生错误，上一次是在运行中
@@ -145,6 +149,7 @@ class BambuPrinterService:
                 elif printer.gcode_state == "PAUSE" and printer_state.last_gcode_state == "RUNNING":
                     print('to PAUSE, printer.gcode_state:', printer.gcode_state, '; printer_state.last_gcode_state:',
                           printer_state.last_gcode_state)
+                    print('printer.hms_data:', printer.hms_data)
                     msg = f'{printer_state.name} 设备暂停，请即时查看处理！'
                     if hms_desc is not None:
                         hms_msg = utils.printerTranslater.translate(hms_desc)

@@ -1,8 +1,4 @@
-import time
 import wx
-import wx.lib.agw.pygauge as PG
-from bpm.bambuconfig import BambuConfig
-from bpm.bambuprinter import BambuPrinter
 import gettext
 
 import models
@@ -58,17 +54,20 @@ class CardPanel(wx.Panel):
         self.time_label.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
                                         "阿里妈妈方圆体 VF Medium"))
         gSizer4.Add(self.time_label, 0, wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
-
         bSizer3.Add(gSizer4, 1, wx.EXPAND, 5)
 
-        self.endtime_label = wx.StaticText(self, wx.ID_ANY, _(u"-- --"), wx.DefaultPosition,
-                                           wx.DefaultSize, 0)
+        self.endtime_label = wx.StaticText(self, wx.ID_ANY, _(u"-- --"), wx.DefaultPosition, wx.DefaultSize, 0)
         self.endtime_label.Wrap(-1)
-
-        self.endtime_label.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
-                                           "阿里妈妈方圆体 VF Medium"))
-
+        self.endtime_label.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM,
+                                           False, "阿里妈妈方圆体 VF Medium"))
         bSizer3.Add(self.endtime_label, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
+
+        self.print_file_name = wx.StaticText(self, wx.ID_ANY, _(u"--"), wx.DefaultPosition, wx.DefaultSize, 0)
+        self.print_file_name.Wrap(-1)
+        self.print_file_name.SetFont(
+            wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
+                    "阿里妈妈方圆体 VF Medium"))
+        bSizer3.Add(self.print_file_name, 0, wx.ALL, 5)
 
         self.progress_bar = wx.Gauge(self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size(400, 3),
                                      wx.GA_HORIZONTAL)
@@ -96,21 +95,23 @@ class CardPanel(wx.Panel):
         if self.time_label.GetLabel() != printer.time_remaining:
             self.time_label.SetLabel(printer.time_remaining)
             is_change = True
-        if self.endtime_label.GetLabel() != printer.end_time:
+        if printer.end_time != "" and self.endtime_label.GetLabel() != printer.end_time:
             self.endtime_label.SetLabel(printer.end_time)
             is_change = True
-        # self.current_layer_label.SetLabel(f"当前层: {printer.current_layer}")
+        if self.print_file_name.GetLabel() != printer.gcode_file:
+            self.print_file_name.SetLabel(printer.gcode_file)
+            is_change = True
         if self.progress_bar.GetValue() != printer.percent_complete:
             self.progress_bar.SetValue(printer.percent_complete)
             is_change = True
-        # self.time_remaining_label.SetLabel(f"剩余时间: {printer.time_remaining} 分钟")
+
         if is_change:
             self.Layout()
 
 
 class HomeFrame(wx.Frame):
     def __init__(self, parent):
-        wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=_(u"3D打印机机器管理系统"), pos=wx.DefaultPosition,
+        wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=_(u"3D打印机集群管理系统"), pos=wx.DefaultPosition,
                           size=wx.Size(980, 600), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)

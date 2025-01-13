@@ -97,6 +97,11 @@ class Home ( wx.Frame ):
 
         bSizer3.Add( self.endtime_label, 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
 
+        self.print_file_name = wx.StaticText( self.printer_card, wx.ID_ANY, _(u"p1s_test_SUNLU_PETG.3mf"), wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.print_file_name.Wrap( -1 )
+
+        bSizer3.Add( self.print_file_name, 0, wx.ALL, 5 )
+
         self.progress_bar = wx.Gauge( self.printer_card, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size( 400,8 ), wx.GA_HORIZONTAL )
         self.progress_bar.SetValue( 0 )
         self.progress_bar.SetMaxSize( wx.Size( 400,8 ) )
