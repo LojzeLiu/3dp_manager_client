@@ -106,7 +106,7 @@ class BambuPrinter:
         When accessing the class level attributes, use their associated properties as the 
         class level attributes are marked private.
         """
-        setup_logging()
+        # setup_logging()
 
         self._mqtt_client_thread = None
         self._watchdog_thread = None
@@ -895,7 +895,7 @@ class BambuPrinter:
             for hms in self._hms_data:
                 hms_attr = hex(hms.get("attr", 0))[2:].zfill(8).upper()
                 hms_code = hex(hms.get("code", 0))[2:].zfill(8).upper()
-                for entry in HMS_STATUS["data"]["device_hms"]["en"]:
+                for entry in HMS_STATUS["data"]["device_hms"]["ch"]:
                     if entry["ecode"] == f"{hms_attr}{hms_code}":
                         hms["desc"] = entry["intro"]
                         self._hms_message = f"{self._hms_message}{entry['intro']} "
@@ -1218,22 +1218,22 @@ class BambuPrinter:
     def hms_data(self):
         return self._hms_data
 
-    @property
-    def print_type(self):
-        return self._print_type
+    # @property
+    # def print_type(self):
+    #     return self._print_type
 
     @property
     def skipped_objects(self):
         return self._skipped_objects
 
 
-def setup_logging():
-    config_file = os.path.dirname(os.path.realpath(__file__)) + "/bambuprinterlogger.json"
-    with open(config_file) as f_in:
-        config = json.load(f_in)
-
-    logging.config.dictConfig(config)
-    queue_handler = logging.getHandlerByName("queue_handler")
-    if queue_handler is not None:
-        queue_handler.listener.start()
-        atexit.register(queue_handler.listener.stop)
+# def setup_logging():
+#     config_file = os.path.dirname(os.path.realpath(__file__)) + "/bambuprinterlogger.json"
+#     with open(config_file) as f_in:
+#         config = json.load(f_in)
+#
+#     logging.config.dictConfig(config)
+#     queue_handler = logging.getHandlerByName("queue_handler")
+#     if queue_handler is not None:
+#         queue_handler.listener.start()
+#         atexit.register(queue_handler.listener.stop)

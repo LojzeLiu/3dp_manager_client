@@ -8,7 +8,9 @@ from typing import Optional
 
 from bpm.bambutools import getModelBySerial, PrinterModel
 
-logger = logging.getLogger("bambuprinter")
+import utils
+
+# logger = logging.getLogger("bambuprinter")
 
 class BambuConfig:
     """
@@ -63,7 +65,7 @@ class BambuConfig:
         * _tray_read_option : bool - AMS will automatically read RFID on tray/spool change
         * _calibrate_remain_flag : bool - AMS will calculate remaining amount of filament in spool (unverified)
         """        
-        setup_logging()
+        # setup_logging()
 
         self._hostname = hostname
         self._access_code = access_code
@@ -218,25 +220,25 @@ class BambuConfig:
     @verbose.setter 
     def verbose(self, value: bool):
         self._verbose = bool(value)
-        stderrHandler = logging.getHandlerByName("stderr")
-        fileHandler = logging.getHandlerByName("file")
+        stderrHandler = utils.logger.getHandlerByName("stderr")
+        fileHandler = utils.logger.getHandlerByName("file")
         if self._verbose:
-            stderrHandler.setLevel(logging.DEBUG)
-            fileHandler.setLevel(logging.DEBUG)
+            stderrHandler.setLevel(utils.logger.DEBUG)
+            fileHandler.setLevel(utils.logger.DEBUG)
         else:
-            if stderrHandler.level != logging.WARNING:
-                stderrHandler.setLevel(logging.WARNING)
-                fileHandler.setLevel(logging.WARNING)
-        logger.info("log level changed", extra={"new_level": logging.getLevelName(stderrHandler.level)})
+            if stderrHandler.level != utils.logger.WARNING:
+                stderrHandler.setLevel(utils.logger.WARNING)
+                fileHandler.setLevel(utils.logger.WARNING)
+        utils.logger.info("log level changed", extra={"new_level": utils.logger.getLevelName(stderrHandler.level)})
 
 
-def setup_logging():
-    config_file = os.path.dirname(os.path.realpath(__file__)) + "/bambuprinterlogger.json"
-    with open(config_file) as f_in:
-        config = json.load(f_in)
-
-    logging.config.dictConfig(config)
-    queue_handler = logging.getHandlerByName("queue_handler")
-    if queue_handler is not None:
-        queue_handler.listener.start()
-        atexit.register(queue_handler.listener.stop)      
+# def setup_logging():
+#     config_file = os.path.dirname(os.path.realpath(__file__)) + "/bambuprinterlogger.json"
+#     with open(config_file) as f_in:
+#         config = json.load(f_in)
+#
+#     logging.config.dictConfig(config)
+#     queue_handler = logging.getHandlerByName("queue_handler")
+#     if queue_handler is not None:
+#         queue_handler.listener.start()
+#         atexit.register(queue_handler.listener.stop)

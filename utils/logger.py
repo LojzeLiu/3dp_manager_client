@@ -8,9 +8,9 @@ log_base_path = env_set.log_path
 if not os.path.exists(log_base_path):
     os.mkdir(log_base_path)
 
-log_path = f'{log_base_path}/luck_driver_auto.log'
+log_path = f'{log_base_path}/3dpm.log'
 
-logger = logging.getLogger('luck_driver_auto')
+logger = logging.getLogger('3dpm')
 logger.setLevel(level=logging.DEBUG)
 
 formatter = logging.Formatter('%(asctime)s-[%(lineno)d]-[%(funcName)s]-[%(levelname)s]: %(message)s')

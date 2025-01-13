@@ -126,36 +126,24 @@ class BambuPrinterService:
 
                 if printer.gcode_state == "FAILED" and printer_state.last_gcode_state == "RUNNING":
                     # 发生错误，上一次是在运行中
-                    print('to failed, printer.gcode_state:', printer.gcode_state, '; printer_state.last_gcode_state:',
-                          printer_state.last_gcode_state)
                     msg = f'{printer_state.name} 发生错误，请即时处理！'
                     print('printer.hms_data:', printer.hms_data)
                     if hms_desc is not None:
-                        hms_msg = utils.printerTranslater.translate(hms_desc)
-                        msg = f'{printer_state.name}，{hms_msg}，请即时处理！'
+                        msg = f'{printer_state.name}，{hms_desc}，请即时处理！'
                 elif printer.gcode_state == "FINISH" and printer_state.last_gcode_state == "RUNNING":
-                    print('to FINISH, printer.gcode_state:', printer.gcode_state, '; printer_state.last_gcode_state:',
-                          printer_state.last_gcode_state)
                     msg = f'{printer_state.name} 打印完成，请即时收盘！'
                     if hms_desc is not None:
-                        hms_msg = utils.printerTranslater.translate(hms_desc)
-                        msg = f'{printer_state.name}，{hms_msg}，请即时处理！'
+                        msg = f'{printer_state.name}，{hms_desc}，请即时处理！'
                 elif printer.gcode_state == "IDLE" and printer_state.last_gcode_state == "RUNNING":
-                    print('to IDLE, printer.gcode_state:', printer.gcode_state, '; printer_state.last_gcode_state:',
-                          printer_state.last_gcode_state)
                     msg = f'{printer_state.name} 设备空闲，请即时安排工作！'
                     print('printer.hms_data:', printer.hms_data)
                     if hms_desc is not None:
-                        hms_msg = utils.printerTranslater.translate(hms_desc)
-                        msg = f'{printer_state.name}，{hms_msg}，请即时处理！'
+                        msg = f'{printer_state.name}，{hms_desc}，请即时处理！'
                 elif printer.gcode_state == "PAUSE" and printer_state.last_gcode_state == "RUNNING":
-                    print('to PAUSE, printer.gcode_state:', printer.gcode_state, '; printer_state.last_gcode_state:',
-                          printer_state.last_gcode_state)
                     print('printer.hms_data:', printer.hms_data)
                     msg = f'{printer_state.name} 设备暂停，请即时查看处理！'
                     if hms_desc is not None:
-                        hms_msg = utils.printerTranslater.translate(hms_desc)
-                        msg = f'{printer_state.name}，{hms_msg}，请即时处理！'
+                        msg = f'{printer_state.name}，{hms_desc}，请即时处理！'
                 if msg != "":
                     MsgHandler.add_message(msg, 1)
                 printer_state.last_gcode_state = printer.gcode_state

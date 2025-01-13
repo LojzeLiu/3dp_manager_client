@@ -1,3 +1,10 @@
+
+## 打包构建
+```shell
+python setup.py build
+```
+
+
 ## 相关参数记录
 
 ### BambuPrinter 打印机信息解释
