@@ -8,13 +8,13 @@ _ = gettext.gettext
 
 
 class CardPanel(wx.Panel):
-    def __init__(self, parent, printer_info: models.PrinterInfo):
-        super(CardPanel, self).__init__(parent, wx.ID_ANY, wx.DefaultPosition, wx.Size(300, -1),
+    def __init__(self, parent, printer_info: models.PrinterInfo, card_width=300):
+        super(CardPanel, self).__init__(parent, wx.ID_ANY, wx.DefaultPosition, wx.Size(card_width, -1),
                                         wx.BORDER_SIMPLE | wx.TAB_TRAVERSAL)
         self.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
         self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_HIGHLIGHTTEXT))
-        self.SetMinSize(wx.Size(300, -1))
-        self.SetMaxSize(wx.Size(300, -1))
+        self.SetMinSize(wx.Size(card_width, -1))
+        self.SetMaxSize(wx.Size(card_width, -1))
 
         self.printer_name = printer_info.name
         self._printer = printer_info
@@ -78,7 +78,6 @@ class CardPanel(wx.Panel):
 
         self.SetSizer(bSizer3)
         self.Layout()
-        # self.init_ui()
 
     def update(self, printer):
         """Update the card with the latest printer data."""
@@ -177,7 +176,16 @@ class HomeFrame(wx.Frame):
 
     def on_resize(self, event):
         """Handle window resize event."""
-        self.cards_container.Layout()
+        # Get the current width of the cards_container
+        width = self.GetSize().GetWidth()
+
+        # Each card has a fixed width of 300px, adjust the number of columns accordingly
+        card_width = 300
+        cols = max(1, width // card_width)  # 计算最大列数
+        self.cards_sizer.SetCols(cols)  # 更新列数
+
+        self.Layout()  # 重新布局
+        self.cards_container.Layout()  # 重新布局滚动区域
         event.Skip()
 
     @staticmethod
