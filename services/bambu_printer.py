@@ -1,10 +1,10 @@
-from bpm.bambuconfig import BambuConfig
-from bpm.bambuprinter import BambuPrinter
 from datetime import datetime, timedelta
 
 import data
 import models
 import utils
+from lib.bpm.bambuconfig import BambuConfig
+from lib.bpm.bambuprinter import BambuPrinter
 from .msg_handle import MsgHandler
 
 PrinterStateList = []
@@ -129,6 +129,7 @@ class BambuPrinterService:
                     print('to failed, printer.gcode_state:', printer.gcode_state, '; printer_state.last_gcode_state:',
                           printer_state.last_gcode_state)
                     msg = f'{printer_state.name} 发生错误，请即时处理！'
+                    print('printer.hms_data:', printer.hms_data)
                     if hms_desc is not None:
                         hms_msg = utils.printerTranslater.translate(hms_desc)
                         msg = f'{printer_state.name}，{hms_msg}，请即时处理！'
@@ -143,6 +144,7 @@ class BambuPrinterService:
                     print('to IDLE, printer.gcode_state:', printer.gcode_state, '; printer_state.last_gcode_state:',
                           printer_state.last_gcode_state)
                     msg = f'{printer_state.name} 设备空闲，请即时安排工作！'
+                    print('printer.hms_data:', printer.hms_data)
                     if hms_desc is not None:
                         hms_msg = utils.printerTranslater.translate(hms_desc)
                         msg = f'{printer_state.name}，{hms_msg}，请即时处理！'

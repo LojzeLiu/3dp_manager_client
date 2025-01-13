@@ -120,7 +120,11 @@ class HomeFrame(wx.Frame):
         self.m_menubar1 = wx.MenuBar(0)
         self.sys_menu = wx.Menu()
         self.m_menuItem1 = wx.MenuItem(self.sys_menu, wx.ID_ANY, _(u"系统设置"), wx.EmptyString, wx.ITEM_NORMAL)
+        self.m_full_screen = wx.MenuItem(self.sys_menu, wx.ID_ANY, _(u"全屏"), wx.EmptyString, wx.ITEM_NORMAL)
+        self.m_quit_full_screen = wx.MenuItem(self.sys_menu, wx.ID_ANY, _(u"取消全屏"), wx.EmptyString, wx.ITEM_NORMAL)
         self.sys_menu.Append(self.m_menuItem1)
+        self.sys_menu.Append(self.m_full_screen)
+        self.sys_menu.Append(self.m_quit_full_screen)
 
         self.m_menubar1.Append(self.sys_menu, _(u"设置"))
 
@@ -156,6 +160,10 @@ class HomeFrame(wx.Frame):
         self.Bind(wx.EVT_SIZE, self.on_resize)
         self.Bind(wx.EVT_MENU, self.open_light, id=self.m_menuItem2.GetId())
         self.Bind(wx.EVT_MENU, self.close_light, id=self.m_menuItem3.GetId())
+        self.Bind(wx.EVT_MENU, self.full_screen, id=self.m_full_screen.GetId())
+        self.Bind(wx.EVT_MENU, self.quit_full_screen, id=self.m_quit_full_screen.GetId())
+
+        self.Bind(wx.EVT_KEY_DOWN, self.on_key_down)
 
         # Initialize cards for each printer
         self.card_panels = {}
@@ -197,3 +205,19 @@ class HomeFrame(wx.Frame):
     def close_light(event):
         services.PrinterService.close_all_light()
         event.Skip()
+
+    def full_screen(self, event):
+        self.ShowFullScreen(True, style=wx.FULLSCREEN_NOCAPTION)
+        event.Skip()
+
+    def quit_full_screen(self, event):
+        self.ShowFullScreen(False)
+        event.Skip()
+
+    def on_key_down(self, event):
+        """处理键盘按下事件"""
+        print('event.GetKeyCode():', event.GetKeyCode())
+        if event.GetKeyCode() == wx.WXK_ESCAPE:  # 检查是否按下 ESC 键
+            self.ShowFullScreen(False)  # 退出全屏模式
+        else:
+            event.Skip()  # 处理其他键的事件
