@@ -10,7 +10,6 @@ import utils
 
 engine = pyttsx3.init()
 
-
 class MsgInfo:
     def __init__(self, msg, level):
         self.msg = msg
@@ -18,7 +17,8 @@ class MsgInfo:
 
 
 class MsgHandle:
-    def __init__(self):
+    def __init__(self, wc_send_url: str):
+        self._running = True
         self.msg_queue = asyncio.Queue()  # 消息队列
         self.send_msg_queue = asyncio.Queue()  # 发送消息队列
         self.loop = asyncio.new_event_loop()  # 获取事件循环
@@ -30,6 +30,7 @@ class MsgHandle:
         self.send_worker_thread = threading.Thread(target=self.run_send_worker)  # 创建线程以运行消息处理程序
         self.send_worker_thread.start()  # 启动线程
         self.playing = False
+        self._wc_send_url = wc_send_url
 
     async def process_message(self, message):
         # 处理消息的逻辑
@@ -42,7 +43,6 @@ class MsgHandle:
 
             # 使用线程来播放声音，以避免阻塞主线程
             self.playing = True
-
             def play_message():
                 sleep_count = 5
                 sleep_num = 0
@@ -78,17 +78,32 @@ class MsgHandle:
             engine.runAndWait()
 
     async def send_messages_to_wechat(self):
-        while True:
-            # 发送已记录的消息到微信
-            message = await self.send_msg_queue.get()  # 从消息队列中获取消息，若为空则阻塞
-            self.send_txt_msg_to_wechat(message.msg)
-            self.send_msg_queue.task_done()  # 标记消息处理完成
+        while self._running:  # 使用初始化的 _running 属性
+            try:
+                # 发送已记录的消息到微信
+                message = await asyncio.wait_for(self.send_msg_queue.get(), timeout=5.0)  # 从消息队列中获取消息，若为空则阻塞
+                utils.logger.debug('message:', message.msg)
+                self.send_txt_msg_to_wechat(message.msg)
+                self.send_msg_queue.task_done()  # 标记消息处理完成
+            except asyncio.TimeoutError:
+                # 在超时后继续循环
+                continue
+            except Exception as e:
+                utils.logger.error(f"Error in sending message to WeChat: {e}")
+        utils.logger.debug('send_messages_to_wechat exiting')
 
     async def worker(self):
-        while True:
-            message = await self.msg_queue.get()  # 从消息队列中获取消息，若为空则阻塞
-            await self.process_message(message)  # 处理消息
-            self.msg_queue.task_done()  # 标记消息处理完成
+        while self._running:  # 使用初始化的 _running 属性
+            try:
+                message = await asyncio.wait_for(self.msg_queue.get(), timeout=5.0)   # 从消息队列中获取消息，若为空则阻塞
+                await self.process_message(message)  # 处理消息
+                self.msg_queue.task_done()  # 标记消息处理完成
+            except asyncio.TimeoutError:
+                # 在超时后继续循环
+                continue
+            except Exception as e:
+                utils.logger.error(f"Error in worker processing message: {e}")
+        utils.logger.debug('worker exiting')
 
     def run_worker(self):
         asyncio.set_event_loop(self.loop)  # 在新线程中设置事件循环
@@ -110,10 +125,8 @@ class MsgHandle:
         self.loop.call_soon_threadsafe(self.msg_queue.put_nowait, msg)  # 使用 call_soon_threadsafe 确保线程安全
         self.send_loop.call_soon_threadsafe(self.send_msg_queue.put_nowait, msg)  # 使用 call_soon_threadsafe 确保线程安全
 
-    @staticmethod
-    def send_txt_msg_to_wechat(msg):
+    def send_txt_msg_to_wechat(self, msg):
         headers = {"Content-Type": "application/json"}
-        send_url = utils.env_set.WECHAT_SEND_URL
         send_data = {
             "msgtype": "text",  # 消息类型，此时固定为text
             "text": {
@@ -121,8 +134,10 @@ class MsgHandle:
             }
         }
 
-        res = requests.post(url=send_url, headers=headers, json=send_data)
-        print('res:', res.text)
+        res = requests.post(url=self._wc_send_url, headers=headers, json=send_data)
+        utils.logger.debug(f'res.text:{res.text}')
+        # print('res:', res.text)
 
-
-MsgHandler = MsgHandle()
+    def stop(self):
+        utils.logger.debug(f'to stop')
+        self._running = False

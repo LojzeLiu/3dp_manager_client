@@ -1,11 +1,10 @@
 from datetime import datetime, timedelta
 
-import data
 import models
 import utils
 from lib.bpm.bambuconfig import BambuConfig
 from lib.bpm.bambuprinter import BambuPrinter
-from .msg_handle import MsgHandler
+from .msg_handle import MsgHandle
 
 PrinterStateList = []
 
@@ -83,6 +82,11 @@ class BambuPrinterService:
     def __init__(self, bambu_config_list: [models.BambuConfInfo]):
         self._bambu_config_list = bambu_config_list
         self._bambu_session_map = {}
+
+        # 初始化消息相关服务
+        send_url = utils.env_set.WECHAT_SEND_URL
+        self._msg_handle = MsgHandle(send_url)
+
         for bambu_config in self._bambu_config_list:
             printer_info = models.PrinterInfo()
             printer_info.name = bambu_config.name
@@ -91,14 +95,23 @@ class BambuPrinterService:
 
     def start_session(self):
         for bambu_config in self._bambu_config_list:
-            curr_conf = BambuConfig(bambu_config.hostname, bambu_config.access_code, bambu_config.serial_number)
+            curr_conf = BambuConfig(bambu_config.hostname, bambu_config.access_code, bambu_config.serial_number,
+                                    printer_name=bambu_config.name)
             curr_printer = BambuPrinter(curr_conf)
             curr_printer.on_update = self.to_update
             curr_printer.start_session()
             self._bambu_session_map[bambu_config.name] = curr_printer
 
-    @staticmethod
-    def to_update(printer: BambuPrinter):
+    def close_all_sessions(self):
+        """
+        关闭所有监控对话
+        """
+        self._msg_handle.stop()  # 停止消息工作队列
+        for printer in self._bambu_session_map.values():
+            printer.quit()  # 停止打印机监控
+        self._bambu_session_map.clear()  # 清空会话映射
+
+    def to_update(self, printer: BambuPrinter):
         for printer_state in PrinterStateList:
             if printer_state.serial_number == printer.config.serial_number:
                 printer_state.gcode_state = get_gcode_state_title(printer.gcode_state)
@@ -145,7 +158,7 @@ class BambuPrinterService:
                     if hms_desc is not None:
                         msg = f'{printer_state.name}，{hms_desc}，请即时处理！'
                 if msg != "":
-                    MsgHandler.add_message(msg, 1)
+                    self._msg_handle.add_message(msg, 1)
                 printer_state.last_gcode_state = printer.gcode_state
                 break
 
@@ -158,10 +171,3 @@ class BambuPrinterService:
         for bambu_config in self._bambu_config_list:
             curr_printer = self._bambu_session_map[bambu_config.name]
             curr_printer.light_state = False
-
-
-printer_conf = data.PrinterConfInfo()
-printer_conf.setup_table()
-pcl = printer_conf.get_all_conf_info()
-
-PrinterService = BambuPrinterService(pcl)

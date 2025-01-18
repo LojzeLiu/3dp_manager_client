@@ -1,2 +1,2 @@
-from .bambu_printer import BambuPrinterService, PrinterStateList,PrinterService
-from .msg_handle import MsgHandler
+from .bambu_printer import BambuPrinterService, PrinterStateList
+from .msg_handle import MsgHandle

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="89e5aba2-d39c-4f42-bac5-c569c6ffb5b5" name="3DPM_Server">
+        <fileTransfer accessType="SFTP" host="192.168.50.25" port="22" sshConfigId="12a6826a-964d-4164-8c88-910a835be540" sshConfig="lojze@192.168.50.25:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

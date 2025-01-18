@@ -13,7 +13,7 @@ log_path = f'{log_base_path}/3dpm.log'
 logger = logging.getLogger('3dpm')
 logger.setLevel(level=logging.DEBUG)
 
-formatter = logging.Formatter('%(asctime)s-[%(lineno)d]-[%(funcName)s]-[%(levelname)s]: %(message)s')
+formatter = logging.Formatter('%(asctime)s-[%(filename)s-%(lineno)d]-[%(funcName)s]-[%(levelname)s]: %(message)s')
 file_handler = logging.FileHandler(log_path)
 file_handler.setLevel(level=logging.INFO)
 file_handler.setFormatter(formatter)

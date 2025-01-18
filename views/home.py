@@ -1,8 +1,10 @@
 import wx
 import gettext
 
+import data
 import models
 import services
+import utils
 
 _ = gettext.gettext
 
@@ -113,6 +115,13 @@ class HomeFrame(wx.Frame):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=_(u"3D打印机集群管理系统"), pos=wx.DefaultPosition,
                           size=wx.Size(980, 600), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
+        # 初始化打印监控服务
+        printer_conf = data.PrinterConfInfo()
+        printer_conf.setup_table()
+        pcl = printer_conf.get_all_conf_info()
+        self._printer_service = services.BambuPrinterService(pcl)
+        self._printer_service.start_session()
+
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
         self.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
                              "阿里妈妈方圆体 VF Medium"))
@@ -164,11 +173,20 @@ class HomeFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.quit_full_screen, id=self.m_quit_full_screen.GetId())
 
         self.Bind(wx.EVT_KEY_DOWN, self.on_key_down)
+        # 绑定窗口关闭事件
+        self.Bind(wx.EVT_CLOSE, self.on_close)
 
         # Initialize cards for each printer
         self.card_panels = {}
         for idx, printer_info in enumerate(services.PrinterStateList):
             self.add_card(idx, printer_info)
+
+    def on_close(self, event):
+        utils.logger.debug('home frame closed')
+        self._printer_service.close_all_sessions()
+
+        # 确保框架关闭
+        self.Destroy()
 
     def add_card(self, idx, printer_info):
         """Add a new card for the given printer."""

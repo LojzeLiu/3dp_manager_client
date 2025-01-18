@@ -1,7 +1,6 @@
 import asyncio
 import traceback
 import wxasync
-import services
 import utils
 import views
 
@@ -11,7 +10,6 @@ async def main():
         app = wxasync.WxAsyncApp(0)
         home_frame = views.HomeFrame(None)
         home_frame.Show()
-        services.PrinterService.start_session()
         await app.MainLoop()
     except Exception as e:
         err_msg = traceback.format_exc()
