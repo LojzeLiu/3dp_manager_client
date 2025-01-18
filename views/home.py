@@ -10,13 +10,14 @@ _ = gettext.gettext
 
 
 class CardPanel(wx.Panel):
-    def __init__(self, parent, printer_info: models.PrinterInfo, card_width=300):
+    def __init__(self, parent, printer_info: models.PrinterInfo, card_width=440):
         super(CardPanel, self).__init__(parent, wx.ID_ANY, wx.DefaultPosition, wx.Size(card_width, -1),
                                         wx.BORDER_SIMPLE | wx.TAB_TRAVERSAL)
         self.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
         self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_HIGHLIGHTTEXT))
         self.SetMinSize(wx.Size(card_width, -1))
         self.SetMaxSize(wx.Size(card_width, -1))
+        print('CardPanel card_width:', card_width)
 
         self.printer_name = printer_info.name
         self._printer = printer_info
@@ -28,7 +29,7 @@ class CardPanel(wx.Panel):
         self.name_label.Wrap(-1)
 
         self.name_label.SetFont(
-            wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, "阿里妈妈方圆体 VF"))
+            wx.Font(22, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, "阿里妈妈方圆体 VF"))
 
         gSizer3.Add(self.name_label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
 
@@ -36,7 +37,7 @@ class CardPanel(wx.Panel):
                                          wx.DefaultSize, 0)
         self.state_label.Wrap(-1)
 
-        self.state_label.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
+        self.state_label.SetFont(wx.Font(22, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
                                          "阿里妈妈方圆体 VF Medium"))
 
         gSizer3.Add(self.state_label, 0, wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
@@ -47,27 +48,27 @@ class CardPanel(wx.Panel):
 
         self.layer_label = wx.StaticText(self, wx.ID_ANY, "层: 0/0", wx.DefaultPosition, wx.DefaultSize, 0)
         self.layer_label.Wrap(-1)
-        self.layer_label.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
+        self.layer_label.SetFont(wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
                                          "阿里妈妈方圆体 VF Medium"))
         gSizer4.Add(self.layer_label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
 
         self.time_label = wx.StaticText(self, wx.ID_ANY, "--h--m", wx.DefaultPosition, wx.DefaultSize, 0)
         self.time_label.Wrap(-1)
-        self.time_label.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
+        self.time_label.SetFont(wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
                                         "阿里妈妈方圆体 VF Medium"))
         gSizer4.Add(self.time_label, 0, wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
         bSizer3.Add(gSizer4, 1, wx.EXPAND, 5)
 
         self.endtime_label = wx.StaticText(self, wx.ID_ANY, _(u"-- --"), wx.DefaultPosition, wx.DefaultSize, 0)
         self.endtime_label.Wrap(-1)
-        self.endtime_label.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM,
+        self.endtime_label.SetFont(wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM,
                                            False, "阿里妈妈方圆体 VF Medium"))
         bSizer3.Add(self.endtime_label, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
 
         self.print_file_name = wx.StaticText(self, wx.ID_ANY, _(u"--"), wx.DefaultPosition, wx.DefaultSize, 0)
         self.print_file_name.Wrap(-1)
         self.print_file_name.SetFont(
-            wx.Font(9, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
+            wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
                     "阿里妈妈方圆体 VF Medium"))
         bSizer3.Add(self.print_file_name, 0, wx.ALL, 5)
 
@@ -111,9 +112,12 @@ class CardPanel(wx.Panel):
 
 
 class HomeFrame(wx.Frame):
-    def __init__(self, parent):
-        wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=_(u"3D打印机集群管理系统"), pos=wx.DefaultPosition,
-                          size=wx.Size(980, 600), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
+    def __init__(self, parent, width=980):
+        wx.Frame.__init__(self, parent, id=wx.ID_ANY, title=_(models.About.app_name + " v" + models.About.curr_version),
+                          pos=wx.DefaultPosition,
+                          size=wx.Size(width, 650), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
+        self._home_width = width
+        self._card_width = 430
 
         # 初始化打印监控服务
         printer_conf = data.PrinterConfInfo()
@@ -123,32 +127,37 @@ class HomeFrame(wx.Frame):
         self._printer_service.start_session()
 
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
-        self.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
+        self.SetFont(wx.Font(18, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
                              "阿里妈妈方圆体 VF Medium"))
 
+        # 设置菜单字体
+        menu_font = wx.Font(14, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
+                            "阿里妈妈方圆体 VF Medium")
         self.m_menubar1 = wx.MenuBar(0)
         self.sys_menu = wx.Menu()
         self.m_menuItem1 = wx.MenuItem(self.sys_menu, wx.ID_ANY, _(u"系统设置"), wx.EmptyString, wx.ITEM_NORMAL)
+        self.m_menuItem1.SetFont(menu_font)
         self.m_full_screen = wx.MenuItem(self.sys_menu, wx.ID_ANY, _(u"全屏"), wx.EmptyString, wx.ITEM_NORMAL)
+        self.m_full_screen.SetFont(menu_font)
         self.m_quit_full_screen = wx.MenuItem(self.sys_menu, wx.ID_ANY, _(u"取消全屏"), wx.EmptyString, wx.ITEM_NORMAL)
+        self.m_quit_full_screen.SetFont(menu_font)
         self.sys_menu.Append(self.m_menuItem1)
         self.sys_menu.Append(self.m_full_screen)
         self.sys_menu.Append(self.m_quit_full_screen)
 
         self.m_menubar1.Append(self.sys_menu, _(u"设置"))
-
-        self.SetMenuBar(self.m_menubar1)
-
         self.m_menu2 = wx.Menu()
         self.m_menuItem2 = wx.MenuItem(self.m_menu2, wx.ID_ANY, _(u"开灯"), wx.EmptyString, wx.ITEM_NORMAL)
+        self.m_menuItem2.SetFont(menu_font)
         self.m_menuItem3 = wx.MenuItem(self.m_menu2, wx.ID_ANY, _(u"关灯"), wx.EmptyString, wx.ITEM_NORMAL)
+        self.m_menuItem3.SetFont(menu_font)
         self.m_menu2.Append(self.m_menuItem2)
         self.m_menu2.Append(self.m_menuItem3)
 
         self.m_menubar1.Append(self.m_menu2, _(u"操作"))
 
         self.SetMenuBar(self.m_menubar1)
-
+        self.m_menubar1.SetFont(menu_font)
         self.m_statusBar1 = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
         self._printer_infos = []
         self.panel = wx.Panel(self)
@@ -156,7 +165,11 @@ class HomeFrame(wx.Frame):
 
         self.cards_container = wx.ScrolledWindow(self.panel, style=wx.VSCROLL)
         self.cards_container.SetScrollRate(5, 5)
-        self.cards_sizer = wx.FlexGridSizer(cols=3, hgap=5, vgap=5)  # FlexGridSizer for 2 columns
+        print('self._home_width:', self._home_width, "; self._card_width:", self._card_width)
+        card_cols_count = int(self._home_width / self._card_width)
+        print('cols count:', card_cols_count)
+
+        self.cards_sizer = wx.FlexGridSizer(cols=card_cols_count, hgap=5, vgap=5)  # FlexGridSizer for 2 columns
         self.cards_container.SetSizer(self.cards_sizer)
         # Cards Container
         main_sizer.Add(self.cards_container, 1, wx.EXPAND | wx.ALL, 5)
@@ -191,7 +204,7 @@ class HomeFrame(wx.Frame):
     def add_card(self, idx, printer_info):
         """Add a new card for the given printer."""
 
-        card = CardPanel(self.cards_container, printer_info)
+        card = CardPanel(self.cards_container, printer_info, card_width=self._card_width, )
         printer_info.on_update = card.update
         self.cards_sizer.Add(card, 0, wx.ALL | wx.EXPAND, 5)
         self.card_panels[idx] = card
@@ -206,7 +219,7 @@ class HomeFrame(wx.Frame):
         width = self.GetSize().GetWidth()
 
         # Each card has a fixed width of 300px, adjust the number of columns accordingly
-        card_width = 300
+        card_width = 440
         cols = max(1, width // card_width)  # 计算最大列数
         self.cards_sizer.SetCols(cols)  # 更新列数
 
