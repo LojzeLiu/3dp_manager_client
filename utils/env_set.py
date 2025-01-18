@@ -7,7 +7,7 @@ from pathlib import Path
 env = environ.Env(
     DEBUG=(bool, False)
 )
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 ENV_PATH = os.path.join(BASE_DIR, '.env')
 # 从 .env 文件中读取环境变量
 env.read_env(ENV_PATH)

@@ -17,7 +17,6 @@ class CardPanel(wx.Panel):
         self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_HIGHLIGHTTEXT))
         self.SetMinSize(wx.Size(card_width, -1))
         self.SetMaxSize(wx.Size(card_width, -1))
-        print('CardPanel card_width:', card_width)
 
         self.printer_name = printer_info.name
         self._printer = printer_info
@@ -165,9 +164,7 @@ class HomeFrame(wx.Frame):
 
         self.cards_container = wx.ScrolledWindow(self.panel, style=wx.VSCROLL)
         self.cards_container.SetScrollRate(5, 5)
-        print('self._home_width:', self._home_width, "; self._card_width:", self._card_width)
         card_cols_count = int(self._home_width / self._card_width)
-        print('cols count:', card_cols_count)
 
         self.cards_sizer = wx.FlexGridSizer(cols=card_cols_count, hgap=5, vgap=5)  # FlexGridSizer for 2 columns
         self.cards_container.SetSizer(self.cards_sizer)

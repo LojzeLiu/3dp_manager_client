@@ -10,6 +10,7 @@ import utils
 
 engine = pyttsx3.init()
 
+
 class MsgInfo:
     def __init__(self, msg, level):
         self.msg = msg
@@ -43,6 +44,7 @@ class MsgHandle:
 
             # 使用线程来播放声音，以避免阻塞主线程
             self.playing = True
+
             def play_message():
                 sleep_count = 5
                 sleep_num = 0
@@ -82,7 +84,6 @@ class MsgHandle:
             try:
                 # 发送已记录的消息到微信
                 message = await asyncio.wait_for(self.send_msg_queue.get(), timeout=5.0)  # 从消息队列中获取消息，若为空则阻塞
-                utils.logger.debug('message:', message.msg)
                 self.send_txt_msg_to_wechat(message.msg)
                 self.send_msg_queue.task_done()  # 标记消息处理完成
             except asyncio.TimeoutError:
@@ -95,7 +96,7 @@ class MsgHandle:
     async def worker(self):
         while self._running:  # 使用初始化的 _running 属性
             try:
-                message = await asyncio.wait_for(self.msg_queue.get(), timeout=5.0)   # 从消息队列中获取消息，若为空则阻塞
+                message = await asyncio.wait_for(self.msg_queue.get(), timeout=5.0)  # 从消息队列中获取消息，若为空则阻塞
                 await self.process_message(message)  # 处理消息
                 self.msg_queue.task_done()  # 标记消息处理完成
             except asyncio.TimeoutError:
@@ -135,7 +136,8 @@ class MsgHandle:
         }
 
         res = requests.post(url=self._wc_send_url, headers=headers, json=send_data)
-        utils.logger.debug(f'res.text:{res.text}')
+        if res.status_code != 200:
+            utils.logger.debug(f'send msg failed, state code:{res.status_code}, text:{res.text}')
         # print('res:', res.text)
 
     def stop(self):
