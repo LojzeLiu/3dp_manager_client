@@ -224,14 +224,12 @@ class HomeFrame(wx.Frame):
         self.cards_container.Layout()  # 重新布局滚动区域
         event.Skip()
 
-    @staticmethod
-    def open_light(event):
-        services.PrinterService.open_all_light()
+    def open_light(self, event):
+        self._printer_service.open_all_light()
         event.Skip()
 
-    @staticmethod
-    def close_light(event):
-        services.PrinterService.close_all_light()
+    def close_light(self, event):
+        self._printer_service.close_all_light()
         event.Skip()
 
     def full_screen(self, event):

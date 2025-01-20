@@ -2,12 +2,14 @@ from cx_Freeze import setup, Executable
 
 import models
 
-build_options = dict(packages=["passlib", "asyncio","pyttsx3","bs4"], excludes=[],
+build_options = dict(packages=["passlib", "asyncio", "pyttsx3", "bs4"], excludes=[],
                      include_files=[
                          "resources",
                          ".env",
                          "bambu.db",
-                     ])
+                     ],
+                     build_exe='./build/'+models.About.app_name + "_" + models.About.curr_version
+                     )
 
 # 注意：将 'YourApp' 替换为你的应用名称
 exe = Executable(
