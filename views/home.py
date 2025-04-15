@@ -134,7 +134,7 @@ class HomeFrame(wx.Frame):
                             "阿里妈妈方圆体 VF Medium")
         self.m_menubar1 = wx.MenuBar(0)
         self.sys_menu = wx.Menu()
-        self.m_menuItem1 = wx.MenuItem(self.sys_menu, wx.ID_ANY, _(u"系统设置"), wx.EmptyString, wx.ITEM_NORMAL)
+        self.m_menuItem1 = wx.MenuItem(self.sys_menu, wx.ID_ANY, _(u"打印机管理"), wx.EmptyString, wx.ITEM_NORMAL)
         self.m_menuItem1.SetFont(menu_font)
         self.m_full_screen = wx.MenuItem(self.sys_menu, wx.ID_ANY, _(u"全屏"), wx.EmptyString, wx.ITEM_NORMAL)
         self.m_full_screen.SetFont(menu_font)
