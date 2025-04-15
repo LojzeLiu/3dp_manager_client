@@ -5,6 +5,7 @@ import data
 import models
 import services
 import utils
+from views.printer_manager import PrinterManagementDialog
 
 _ = gettext.gettext
 
@@ -181,6 +182,7 @@ class HomeFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.close_light, id=self.m_menuItem3.GetId())
         self.Bind(wx.EVT_MENU, self.full_screen, id=self.m_full_screen.GetId())
         self.Bind(wx.EVT_MENU, self.quit_full_screen, id=self.m_quit_full_screen.GetId())
+        self.Bind(wx.EVT_MENU, self.on_printer_management, id=self.m_menuItem1.GetId())
 
         self.Bind(wx.EVT_KEY_DOWN, self.on_key_down)
         # 绑定窗口关闭事件
@@ -247,3 +249,10 @@ class HomeFrame(wx.Frame):
             self.ShowFullScreen(False)  # 退出全屏模式
         else:
             event.Skip()  # 处理其他键的事件
+
+
+    def on_printer_management(self, event):
+        """Show the printer management dialog"""
+        dialog = PrinterManagementDialog(self)
+        dialog.ShowModal()
+        dialog.Destroy()
