@@ -66,8 +66,8 @@ class PrinterConfInfo(object):
             access_code (str): 访问代码/密码
         """
         self.cursor.execute('''
-            INSERT INTO conf_info (name, hostname, access_code, serial_number = ?)
-            VALUES (?, ?, ?, serial_number = ?)
+            INSERT INTO conf_info (name, hostname, access_code, serial_number)
+            VALUES (?, ?, ?, ?)
         ''', (name, hostname, access_code, serial_number))
         self.conn.commit()
 

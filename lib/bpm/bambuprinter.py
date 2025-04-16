@@ -30,6 +30,8 @@ import copy
 logger = logging.getLogger("bambuprinter")
 
 
+
+
 class BambuPrinter:
     """
     `BambuPrinter` is the main class within `bambu-printer-manager` for interacting with and
@@ -187,39 +189,48 @@ class BambuPrinter:
         This method is required to be called before any commands or data 
         collection / callbacks can take place with the machine.
         """
-        logger.debug("session start_session")
+        utils.logger.debug(f"session start_session host:{self.config.hostname}")
         if self.config.hostname is None or self.config.access_code is None or self.config.serial_number is None:
             raise Exception("hostname, access_code, and serial_number are required")
         if self.client and self.client.is_connected():
             raise Exception("a session is already active")
 
         def on_connect(client, userdata, flags, reason_code, properties):
-            logger.debug("session on_connect")
+            utils.logger.debug(f"session on_connect host:{self.config.hostname}")
             if self.state != PrinterState.PAUSED:
-                self.state = PrinterState.CONNECTED
-                client.subscribe(f"device/{self.config.serial_number}/report")
-                logger.debug(f"subscribed to [device/{self.config.serial_number}/report]")
+                utils.logger.debug(
+                    f'userdata:{userdata}; flags:{flags}; reason code:{reason_code}; properties:{properties};')
+                if reason_code == 'Success':
+                    self.state = PrinterState.CONNECTED
+                    client.subscribe(f"device/{self.config.serial_number}/report")
+                    utils.logger.debug(f"subscribed to [device/{self.config.serial_number}/report]")
+                elif reason_code == 'Not authorized':
+                    self.state = PrinterState.NOT_AUTHORIZED
+                    utils.logger.error(f"Not authorized to connect to printer: {self.config.hostname}")
+                    if self.client and self.client.is_connected():
+                        self.client.disconnect()  # 主动断开连接，触发 on_disconnect
+                    self._internalException = Exception("MQTT connection not authorized")
 
         def on_disconnect(client, userdata, flags, reason_code, properties):
-            logger.debug("session on_disconnect")
+            utils.logger.debug(f"session on_disconnect host:{self.config.hostname}")
             if self._internalException:
-                logger.exception("an internal exception occurred")
+                utils.logger.exception("an internal exception occurred")
                 self.state = PrinterState.QUIT
                 raise self._internalException
             if self.state != PrinterState.PAUSED:
                 self.state = PrinterState.DISCONNECTED
 
         def on_message(client, userdata, msg):
-            logger.debug("session on_message", extra={"state": self.state.name})
+            # utils.logger.debug("session on_message", extra={"state": self.state.name})
             if self._lastMessageTime and self._recent_update: self._lastMessageTime = time.time()
             self._on_message(json.loads(msg.payload.decode("utf-8")))
 
         def loop_forever(printer):
-            logger.debug("session loop_forever")
+            utils.logger.debug(f"session loop_forever host:{self.config.hostname}")
             try:
                 printer.client.loop_forever(retry_first_connection=True)
             except Exception as e:
-                utils.logger.exception("an internal exception occurred")
+                utils.logger.exception(f"an internal exception occurred host:{self.config.hostname}")
                 printer._internalException = e
                 if printer.client and printer.client.is_connected(): printer.client.disconnect()
             printer.state = PrinterState.QUIT
@@ -282,16 +293,22 @@ class BambuPrinter:
         """
         if self.client and self.client.is_connected():
             self.client.disconnect()
-            utils.logger.debug("mqtt client was connected and is now disconnected")
+            utils.logger.debug(f"mqtt client was connected and is now disconnected name:{self.config.hostname}")
         else:
-            utils.logger.debug("mqtt client was already disconnected")
+            utils.logger.debug(f"mqtt client was already disconnected, name:{self.config.hostname}")
 
+        utils.logger.debug(f"to state change, name:{self.config.hostname}")
         self._state == PrinterState.QUIT
+        utils.logger.debug(f"to on_update, name:{self.config.hostname}")
         if self.on_update: self.on_update(self)
 
+        utils.logger.debug(
+            f"to _mqtt_client_thread.join, name:{self.config.hostname}; self._mqtt_client_thread:{self._mqtt_client_thread};")
         if self._mqtt_client_thread.is_alive(): self._mqtt_client_thread.join()
+        utils.logger.debug(
+            f"to _watchdog_thread.join, name:{self.config.hostname}; self._watchdog_thread:{self._watchdog_thread};")
         if self._watchdog_thread.is_alive(): self._watchdog_thread.join()
-        utils.logger.debug("all threads have terminated")
+        utils.logger.debug(f"all threads have terminated, name:{self.config.hostname}")
 
     def refresh(self):
         """
@@ -750,7 +767,7 @@ class BambuPrinter:
         self._watchdog_thread.start()
 
     def _on_message(self, message: str):
-        logger.debug("_on_message", extra={"bambu_msg": message})
+        # utils.logger.debug("_on_message", extra={"bambu_msg": message})
 
         if "system" in message:
             system = message["system"]
@@ -761,7 +778,7 @@ class BambuPrinter:
             if "command" in status and status["command"] == "project_file":
                 self._start_time = 0
                 if self._3mf_file:
-                    logger.debug("project_file request acknowledged")
+                    utils.logger.debug("project_file request acknowledged")
                 else:
                     url = status.get("url", None)
                     subtask = status.get("subtask_name", None)

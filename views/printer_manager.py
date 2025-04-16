@@ -6,6 +6,7 @@ import wx.grid as gridlib
 import models
 import utils
 from data import PrinterConfInfo
+from lib.bpm.bambutools import test_mqtt_connection
 
 
 class PrinterGrid(wx.grid.Grid):
@@ -104,7 +105,7 @@ class PrinterGrid(wx.grid.Grid):
             "name": self.GetCellValue(row, 0),
             "hostname": self.GetCellValue(row, 1),
             "access_code": self.GetCellValue(row, 2),
-            "serial_number": ""  # 假设序列号未在表格中显示
+            "serial_number": self.GetCellValue(row, 3)  # 假设序列号未在表格中显示
         }
 
         # 创建自定义对话框
@@ -209,9 +210,12 @@ class PrinterGrid(wx.grid.Grid):
 
     def delete_printer(self, row):
         """删除打印机"""
-        # 从数据库删除
         printer_conf = PrinterConfInfo()
-        printer_conf.delete_conf_info(row + 1)  # 假设行号对应ID
+        confi_id = printer_conf.get_all_conf_id(name=self.GetCellValue(row, 0),
+                                                hostname=self.GetCellValue(row, 1),
+                                                access_code=self.GetCellValue(row, 2))
+        # 从数据库删除
+        printer_conf.delete_conf_info(confi_id)
 
         # 从表格删除
         self.DeleteRows(row)
@@ -311,19 +315,11 @@ class PrinterManagementDialog(wx.Dialog):
         serial_sizer.Add(serial_label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
         serial_sizer.Add(serial_text, 1, wx.ALL | wx.EXPAND, 5)
 
-        # 标签输入框
-        # tag_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        # tag_label = wx.StaticText(panel, label="标签:")
-        # tag_text = wx.TextCtrl(panel)
-        # tag_sizer.Add(tag_label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
-        # tag_sizer.Add(tag_text, 1, wx.ALL | wx.EXPAND, 5)
-
         # 添加所有控件到主sizer
         sizer.Add(name_sizer, 0, wx.EXPAND)
         sizer.Add(host_sizer, 0, wx.EXPAND)
         sizer.Add(code_sizer, 0, wx.EXPAND)
         sizer.Add(serial_sizer, 0, wx.EXPAND)
-        # sizer.Add(tag_sizer, 0, wx.EXPAND)
 
         # 添加按钮
         btn_sizer = wx.StdDialogButtonSizer()
@@ -338,21 +334,26 @@ class PrinterManagementDialog(wx.Dialog):
         dialog.SetSize(300, 350)  # 稍微增加高度以适应更多字段
         dialog.Fit()
 
-        if dialog.ShowModal() == wx.ID_OK:
-            # 获取所有输入值
-            name = name_text.GetValue().strip()
-            host = host_text.GetValue().strip()
-            code = code_text.GetValue().strip()
-            seria = serial_text.GetValue().strip()
-            # tag = tag_text.GetValue().strip()
+        while True:
+            result = dialog.ShowModal()  # 先存储结果再处理
+            if result == wx.ID_OK:
+                # 获取所有输入值（在销毁前获取）
+                name = name_text.GetValue().strip()
+                host = host_text.GetValue().strip()
+                code = code_text.GetValue().strip()
+                seria = serial_text.GetValue().strip()
 
-            # 验证必要字段
-            if name and host and code:
-                self.grid.add_printer(name, host, code, seria)
+                # 验证必要字段
+                if name and host and code:
+                    self.grid.add_printer(name, host, code, seria)
+                    break  # 先退出循环再销毁
+                else:
+                    wx.MessageBox("名称、IP地址和访问码是必填项", "错误", wx.OK | wx.ICON_ERROR)
+                    continue
             else:
-                wx.MessageBox("名称、IP地址和访问码是必填项", "错误", wx.OK | wx.ICON_ERROR)
+                break  # 用户取消，直接退出循环
 
-        dialog.Destroy()
+        dialog.Destroy()  # 统一在循环外销毁对话框
 
     def on_delete_printer(self, event):
         """删除按钮事件"""
@@ -362,12 +363,10 @@ class PrinterManagementDialog(wx.Dialog):
 
     def on_close(self, event):
         """关闭对话框时的事件处理"""
-        print('on_close')
         self.grid.Destroy()
 
         if not self:
             return  # 如果已经被销毁，直接返回
-        print('to Close')
         self.Close()  # 这会触发 EVT_CLOSE 事件
         event.Skip()  # 确保事件继续传递
 

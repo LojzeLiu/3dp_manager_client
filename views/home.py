@@ -119,13 +119,6 @@ class HomeFrame(wx.Frame):
         self._home_width = width
         self._card_width = 430
 
-        # 初始化打印监控服务
-        printer_conf = data.PrinterConfInfo()
-        printer_conf.setup_table()
-        pcl = printer_conf.get_all_conf_info()
-        self._printer_service = services.BambuPrinterService(pcl)
-        self._printer_service.start_session()
-
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
         self.SetFont(wx.Font(18, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
                              "阿里妈妈方圆体 VF Medium"))
@@ -172,6 +165,10 @@ class HomeFrame(wx.Frame):
         # Cards Container
         main_sizer.Add(self.cards_container, 1, wx.EXPAND | wx.ALL, 5)
 
+        # 初始化打印监控服务
+        self._printer_service = None
+        self._on_start_printer()
+
         self.panel.SetSizer(main_sizer)
         self.Layout()
 
@@ -188,10 +185,45 @@ class HomeFrame(wx.Frame):
         # 绑定窗口关闭事件
         self.Bind(wx.EVT_CLOSE, self.on_close)
 
+    def _on_start_printer(self):
+        if self._printer_service:
+            self._printer_service.close_all_sessions()
+            self._printer_service = None
+        printer_conf = data.PrinterConfInfo()
+        printer_conf.setup_table()
+        pcl = printer_conf.get_all_conf_info()
+        self._printer_service = services.BambuPrinterService(pcl)
+        self._printer_service.start_session()
+
         # Initialize cards for each printer
         self.card_panels = {}
+        print('services.PrinterStateList:', len(services.PrinterStateList), ';')
+        for idx, printer_info in enumerate(services.PrinterStateList):
+            print('idx:', idx, ';')
+            self.add_card(idx, printer_info)
+
+    def _on_restart_printer(self):
+        printer_conf = data.PrinterConfInfo()
+        printer_conf.setup_table()
+        pcl = printer_conf.get_all_conf_info()
+        self._printer_service.restart_session(pcl)
+
+        # Clear existing cards
+        for card in self.card_panels.values():
+            card.Destroy()
+        self.card_panels.clear()
+        self.cards_sizer.Clear(delete_windows=True)
+
+        # Create new cards for each printer
+        utils.logger.debug(f'Reloading printer cards, count: {len(services.PrinterStateList)}')
         for idx, printer_info in enumerate(services.PrinterStateList):
             self.add_card(idx, printer_info)
+
+        # Force layout update
+        self.cards_container.Layout()
+        self.cards_container.FitInside()
+        self.Layout()
+
 
     def on_close(self, event):
         utils.logger.debug('home frame closed')
@@ -250,10 +282,10 @@ class HomeFrame(wx.Frame):
         else:
             event.Skip()  # 处理其他键的事件
 
-
     def on_printer_management(self, event):
         """Show the printer management dialog"""
         dialog = PrinterManagementDialog(self)
         dialog.ShowModal()
         dialog.Destroy()
+        self._on_restart_printer()
         event.Skip()  # 处理其他键的事件

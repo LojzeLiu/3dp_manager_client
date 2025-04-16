@@ -87,11 +87,11 @@ class BambuPrinterService:
         send_url = utils.env_set.WECHAT_SEND_URL
         self._msg_handle = MsgHandle(send_url)
 
-        for bambu_config in self._bambu_config_list:
-            printer_info = models.PrinterInfo()
-            printer_info.name = bambu_config.name
-            printer_info.serial_number = bambu_config.serial_number
-            PrinterStateList.append(printer_info)
+        # for bambu_config in self._bambu_config_list:
+        #     printer_info = models.PrinterInfo()
+        #     printer_info.name = bambu_config.name
+        #     printer_info.serial_number = bambu_config.serial_number
+        #     PrinterStateList.append(printer_info)
 
     def start_session(self):
         for bambu_config in self._bambu_config_list:
@@ -101,14 +101,30 @@ class BambuPrinterService:
             curr_printer.on_update = self.to_update
             curr_printer.start_session()
             self._bambu_session_map[bambu_config.name] = curr_printer
+            printer_info = models.PrinterInfo()
+            printer_info.name = bambu_config.name
+            printer_info.serial_number = bambu_config.serial_number
+            PrinterStateList.append(printer_info)
+
+    def restart_session(self, bambu_config_list: [models.BambuConfInfo]):
+        self._bambu_config_list = bambu_config_list
+        PrinterStateList.clear()
+        self._quit_all_session()
+
+        self.start_session()
 
     def close_all_sessions(self):
         """
         关闭所有监控对话
         """
         self._msg_handle.stop()  # 停止消息工作队列
-        for printer in self._bambu_session_map.values():
+        self._quit_all_session()
+
+    def _quit_all_session(self):
+        for key, printer in self._bambu_session_map.items():
+            print('to quit:', key, ';')
             printer.quit()  # 停止打印机监控
+        print('to clear map')
         self._bambu_session_map.clear()  # 清空会话映射
 
     def to_update(self, printer: BambuPrinter):
