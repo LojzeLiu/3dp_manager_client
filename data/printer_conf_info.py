@@ -1,6 +1,7 @@
 import sqlite3
 
 import models
+import utils
 
 
 class PrinterConfInfo(object):
@@ -35,8 +36,9 @@ class PrinterConfInfo(object):
                 rows]
 
     def get_all_conf_id(self, name: str, hostname: str, access_code: str):
-        self.cursor.execute('SELECT * FROM conf_info WHERE name = ? AND hostname=? AND access_code=?',
-                            (name, hostname, access_code))
+        self.cursor.execute(
+            'SELECT * FROM conf_info WHERE name = ? AND hostname=? AND access_code=?',
+            (name, hostname, access_code))
         rows = self.cursor.fetchall()
         if len(rows) > 0:
             return rows[0][0]
@@ -52,6 +54,21 @@ class PrinterConfInfo(object):
 
     def delete_conf_info(self, id):
         self.cursor.execute('DELETE FROM conf_info WHERE id = ?', (id,))
+        self.conn.commit()
+
+    def add_config_info(self, name: str, hostname: str, access_code: str, serial_number: str):
+        """
+        向 conf_info 表中添加新的打印机配置信息
+
+        参数:
+            name (str): 打印机名称
+            hostname (str): 打印机主机名/IP地址
+            access_code (str): 访问代码/密码
+        """
+        self.cursor.execute('''
+            INSERT INTO conf_info (name, hostname, access_code, serial_number = ?)
+            VALUES (?, ?, ?, serial_number = ?)
+        ''', (name, hostname, access_code, serial_number))
         self.conn.commit()
 
     def __del__(self):

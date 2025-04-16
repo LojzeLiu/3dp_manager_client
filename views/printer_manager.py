@@ -4,6 +4,7 @@ import wx
 import wx.grid as gridlib
 
 import models
+import utils
 from data import PrinterConfInfo
 
 
@@ -18,7 +19,7 @@ class PrinterGrid(wx.grid.Grid):
         self.SetColLabelValue(0, "打印机名称")
         self.SetColLabelValue(1, "IP")
         self.SetColLabelValue(2, "访问码")
-        self.SetColLabelValue(3, "备注")
+        self.SetColLabelValue(3, "机器码")
         self.SetColLabelValue(4, "标签")
         self.AutoSizeColumns()
         self.Bind(wx.grid.EVT_GRID_CELL_RIGHT_CLICK, self.on_right_click)
@@ -61,13 +62,14 @@ class PrinterGrid(wx.grid.Grid):
             self.SetCellValue(row, 0, printer.name)
             self.SetCellValue(row, 1, printer.hostname)
             self.SetCellValue(row, 2, printer.access_code)
+            self.SetCellValue(row, 3, printer.serial_number)
             # Column 4 ("标签") left empty for now
 
         # Set column widths (total = 800px)
         self.SetColSize(0, 200)  # 打印机名称
         self.SetColSize(1, 120)  # IP
         self.SetColSize(2, 150)  # 访问码
-        self.SetColSize(3, 155)  # 备注
+        self.SetColSize(3, 155)  # 机器码
         self.SetColSize(4, 125)  # 标签
 
     def on_right_click(self, event):
@@ -85,7 +87,8 @@ class PrinterGrid(wx.grid.Grid):
 
             binding_id = self.Bind(wx.EVT_MENU, lambda e: self.update_printer(event.GetRow()), update_item)
             self._menu_event_bindings.append(binding_id)
-            binding_id = self.Bind(wx.EVT_MENU, lambda e: self.delete_printer(event.GetRow()), delete_item)  # 修改为调用delete_printer
+            binding_id = self.Bind(wx.EVT_MENU, lambda e: self.delete_printer(event.GetRow()),
+                                   delete_item)  # 修改为调用delete_printer
             self._menu_event_bindings.append(binding_id)
             binding_id = self.Bind(wx.EVT_MENU, lambda e: self.disable_printer(event.GetRow()), disable_item)
             self._menu_event_bindings.append(binding_id)
@@ -130,10 +133,18 @@ class PrinterGrid(wx.grid.Grid):
         code_sizer.Add(code_label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
         code_sizer.Add(code_text, 1, wx.ALL | wx.EXPAND, 5)
 
+        # 机器码输入框
+        serial_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        serial_label = wx.StaticText(panel, label="机器码:")
+        serial_text = wx.TextCtrl(panel, value=current_data["serial_number"])
+        serial_sizer.Add(serial_label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
+        serial_sizer.Add(serial_text, 1, wx.ALL | wx.EXPAND, 5)
+
         # 添加所有控件到主sizer
         sizer.Add(name_sizer, 0, wx.EXPAND)
         sizer.Add(host_sizer, 0, wx.EXPAND)
         sizer.Add(code_sizer, 0, wx.EXPAND)
+        sizer.Add(serial_sizer, 0, wx.EXPAND)
 
         # 修改位置：将按钮直接添加到panel而不是使用CreateButtonSizer
         btn_sizer = wx.StdDialogButtonSizer()
@@ -155,20 +166,20 @@ class PrinterGrid(wx.grid.Grid):
                 name=name_text.GetValue(),
                 hostname=host_text.GetValue(),
                 access_code=code_text.GetValue(),
-                serial_number=current_data["serial_number"]
+                serial_number=serial_text.GetValue()
             )
             confi_id = printer_conf.get_all_conf_id(name=current_data['name'], hostname=current_data['hostname'],
                                                     access_code=current_data['access_code'])
             if confi_id < 0:
                 messagebox.showerror("错误", "不存在的打印机信息")
                 return
-            messagebox.showerror("错误", "不存在的打印机信息")
             printer_conf.update_conf_info(confi_id, conf_info)
 
             # 更新表格
             self.SetCellValue(row, 0, name_text.GetValue())
             self.SetCellValue(row, 1, host_text.GetValue())
             self.SetCellValue(row, 2, code_text.GetValue())
+            self.SetCellValue(row, 3, serial_text.GetValue())
 
         dialog.Destroy()
 
@@ -177,15 +188,24 @@ class PrinterGrid(wx.grid.Grid):
         for col in range(5):
             self.SetCellTextColour(row, col, wx.Colour(128, 128, 128))
 
-    def add_printer(self, name, ip, code, note, tags):
+    def add_printer(self, name, ip, code, seria_code):
         """添加新打印机行"""
+
+        try:
+            db_manager = PrinterConfInfo()  # 实例化数据库管理类
+            db_manager.add_config_info(name, ip, code, seria_code)  # 调用add_config_info写入数据库
+        except Exception as e:
+            utils.logger.error(f"添加打印机到数据库失败: {e}")
+            messagebox.showerror("错误", "添加打印机到数据库失败。")
+            return
+
         row = self.GetNumberRows()
         self.AppendRows(1)
         self.SetCellValue(row, 0, name)
         self.SetCellValue(row, 1, ip)
         self.SetCellValue(row, 2, code)
-        self.SetCellValue(row, 3, note)
-        self.SetCellValue(row, 4, tags)
+        self.SetCellValue(row, 3, seria_code)
+        # self.SetCellValue(row, 4, tags)
 
     def delete_printer(self, row):
         """删除打印机"""
@@ -258,17 +278,80 @@ class PrinterManagementDialog(wx.Dialog):
         self.close_btn.Bind(wx.EVT_BUTTON, lambda e: self.EndModal(wx.ID_CLOSE))
 
     def on_add_printer(self, event):
-        """添加打印机按钮事件"""
-        dialog = wx.TextEntryDialog(
-            self,
-            "格式：名称,IP,访问码,备注,标签",
-            "添加打印机",
-            "打印机1,192.168.1.100,123456,,办公室"
-        )
+        """添加打印机按钮事件 - 使用自定义对话框"""
+        # 创建自定义对话框
+        dialog = wx.Dialog(self, title="添加打印机")
+        panel = wx.Panel(dialog)
+        sizer = wx.BoxSizer(wx.VERTICAL)
+
+        # 名称输入框
+        name_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        name_label = wx.StaticText(panel, label="名称:")
+        name_text = wx.TextCtrl(panel)
+        name_sizer.Add(name_label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
+        name_sizer.Add(name_text, 1, wx.ALL | wx.EXPAND, 5)
+
+        # IP地址输入框
+        host_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        host_label = wx.StaticText(panel, label="IP地址:")
+        host_text = wx.TextCtrl(panel)
+        host_sizer.Add(host_label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
+        host_sizer.Add(host_text, 1, wx.ALL | wx.EXPAND, 5)
+
+        # 访问码输入框
+        code_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        code_label = wx.StaticText(panel, label="访问码:")
+        code_text = wx.TextCtrl(panel)
+        code_sizer.Add(code_label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
+        code_sizer.Add(code_text, 1, wx.ALL | wx.EXPAND, 5)
+
+        serial_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        serial_label = wx.StaticText(panel, label="机器码:")
+        serial_text = wx.TextCtrl(panel)
+        serial_sizer.Add(serial_label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
+        serial_sizer.Add(serial_text, 1, wx.ALL | wx.EXPAND, 5)
+
+        # 标签输入框
+        # tag_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        # tag_label = wx.StaticText(panel, label="标签:")
+        # tag_text = wx.TextCtrl(panel)
+        # tag_sizer.Add(tag_label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
+        # tag_sizer.Add(tag_text, 1, wx.ALL | wx.EXPAND, 5)
+
+        # 添加所有控件到主sizer
+        sizer.Add(name_sizer, 0, wx.EXPAND)
+        sizer.Add(host_sizer, 0, wx.EXPAND)
+        sizer.Add(code_sizer, 0, wx.EXPAND)
+        sizer.Add(serial_sizer, 0, wx.EXPAND)
+        # sizer.Add(tag_sizer, 0, wx.EXPAND)
+
+        # 添加按钮
+        btn_sizer = wx.StdDialogButtonSizer()
+        ok_btn = wx.Button(panel, wx.ID_OK)
+        cancel_btn = wx.Button(panel, wx.ID_CANCEL)
+        btn_sizer.AddButton(ok_btn)
+        btn_sizer.AddButton(cancel_btn)
+        btn_sizer.Realize()
+        sizer.Add(btn_sizer, 0, wx.ALL | wx.ALIGN_CENTER, 5)
+
+        panel.SetSizer(sizer)
+        dialog.SetSize(300, 350)  # 稍微增加高度以适应更多字段
+        dialog.Fit()
+
         if dialog.ShowModal() == wx.ID_OK:
-            data = dialog.GetValue().split(",")
-            if len(data) == 5:
-                self.grid.add_printer(*[x.strip() for x in data])
+            # 获取所有输入值
+            name = name_text.GetValue().strip()
+            host = host_text.GetValue().strip()
+            code = code_text.GetValue().strip()
+            seria = serial_text.GetValue().strip()
+            # tag = tag_text.GetValue().strip()
+
+            # 验证必要字段
+            if name and host and code:
+                self.grid.add_printer(name, host, code, seria)
+            else:
+                wx.MessageBox("名称、IP地址和访问码是必填项", "错误", wx.OK | wx.ICON_ERROR)
+
         dialog.Destroy()
 
     def on_delete_printer(self, event):
