@@ -256,3 +256,4 @@ class HomeFrame(wx.Frame):
         dialog = PrinterManagementDialog(self)
         dialog.ShowModal()
         dialog.Destroy()
+        event.Skip()  # 处理其他键的事件

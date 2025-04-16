@@ -1,32 +1,19 @@
+from tkinter import messagebox
+
 import wx
 import wx.grid as gridlib
 
+import models
 from data import PrinterConfInfo
 
 
-def _on_paint_button(self, event):
-    btn = event.GetEventObject()
-    dc = wx.PaintDC(btn)
-    dc.SetBackground(wx.Brush(btn.GetBackgroundColour()))
-    dc.Clear()
-
-    # 绘制圆角矩形背景
-    rect = btn.GetClientRect()
-    radius = 5  # 圆角半径
-    dc.SetBrush(wx.Brush(btn.GetBackgroundColour()))
-    dc.SetPen(wx.Pen(btn.GetBackgroundColour()))
-    dc.DrawRoundedRectangle(rect, radius)
-
-    # 绘制文本
-    dc.SetFont(btn.GetFont())
-    dc.SetTextForeground(btn.GetForegroundColour())
-    label = btn.GetLabel()
-    text_width, text_height = dc.GetTextExtent(label)
-    dc.DrawText(label, (rect.width - text_width) // 2, (rect.height - text_height) // 2)
-
-class PrinterGrid(gridlib.Grid):
+class PrinterGrid(wx.grid.Grid):
     def __init__(self, parent):
         super().__init__(parent)
+
+        # 存储右键菜单事件的绑定ID，用于后续解除绑定
+        self._menu_event_bindings = []
+
         self.CreateGrid(0, 5)  # 初始0行，5列
         self.SetColLabelValue(0, "打印机名称")
         self.SetColLabelValue(1, "IP")
@@ -36,12 +23,21 @@ class PrinterGrid(gridlib.Grid):
         self.AutoSizeColumns()
         self.Bind(wx.grid.EVT_GRID_CELL_RIGHT_CLICK, self.on_right_click)
 
+        # Hide row labels (sequence numbers)
+        self.SetRowLabelSize(0)
 
         # Set grid font
-        font = wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL,
-                      wx.FONTWEIGHT_MEDIUM, False, "阿里妈妈方圆体 VF Medium")
+        font = wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
+                       "阿里妈妈方圆体 VF Medium")
         self.SetDefaultCellFont(font)
         self.SetLabelFont(font)
+
+        self.EnableEditing(False)  # 禁止所有单元格编辑
+        # Set selection mode to entire rows
+        self.SetSelectionMode(wx.grid.Grid.GridSelectRows)
+
+        self.DisableDragRowSize()  # 禁止调整行高
+        self.DisableDragColSize()  # 禁止调整列宽
 
         # Load printer data
         self.load_printer_data()
@@ -67,41 +63,113 @@ class PrinterGrid(gridlib.Grid):
             self.SetCellValue(row, 2, printer.access_code)
             # Column 4 ("标签") left empty for now
 
-        self.AutoSizeColumns()
+        # Set column widths (total = 800px)
+        self.SetColSize(0, 200)  # 打印机名称
+        self.SetColSize(1, 120)  # IP
+        self.SetColSize(2, 150)  # 访问码
+        self.SetColSize(3, 155)  # 备注
+        self.SetColSize(4, 125)  # 标签
 
     def on_right_click(self, event):
         """右键菜单事件处理"""
+        print('on_right_click')
         if event.GetRow() >= 0:  # 确保选中有效行
             self.SelectRow(event.GetRow())
             menu = wx.Menu()
 
-            update_item = menu.Append(wx.ID_ANY, "更新")
+            update_item = menu.Append(wx.ID_ANY, "修改")
             delete_item = menu.Append(wx.ID_ANY, "删除")
             disable_item = menu.Append(wx.ID_ANY, "停用")
             menu.AppendSeparator()
-            refresh_item = menu.Append(wx.ID_ANY, "刷新状态")
+            refresh_item = menu.Append(wx.ID_ANY, "更新")
 
-            self.Bind(wx.EVT_MENU, lambda e: self.update_printer(event.GetRow()), update_item)
-            self.Bind(wx.EVT_MENU, lambda e: self.DeleteRows(event.GetRow()), delete_item)
-            self.Bind(wx.EVT_MENU, lambda e: self.disable_printer(event.GetRow()), disable_item)
+            binding_id = self.Bind(wx.EVT_MENU, lambda e: self.update_printer(event.GetRow()), update_item)
+            self._menu_event_bindings.append(binding_id)
+            binding_id = self.Bind(wx.EVT_MENU, lambda e: self.delete_printer(event.GetRow()), delete_item)  # 修改为调用delete_printer
+            self._menu_event_bindings.append(binding_id)
+            binding_id = self.Bind(wx.EVT_MENU, lambda e: self.disable_printer(event.GetRow()), disable_item)
+            self._menu_event_bindings.append(binding_id)
+            binding_id = self.Bind(wx.EVT_MENU, lambda e: self.load_printer_data(), refresh_item)  # 添加刷新功能
+            self._menu_event_bindings.append(binding_id)
 
             self.PopupMenu(menu)
             menu.Destroy()
 
     def update_printer(self, row):
         """更新打印机信息"""
-        current_data = [self.GetCellValue(row, col) for col in range(5)]
-        dialog = wx.TextEntryDialog(
-            self.GetParent(),
-            "修改打印机信息",
-            "更新打印机",
-            ",".join(current_data)
-        )
+        current_data = {
+            "name": self.GetCellValue(row, 0),
+            "hostname": self.GetCellValue(row, 1),
+            "access_code": self.GetCellValue(row, 2),
+            "serial_number": ""  # 假设序列号未在表格中显示
+        }
+
+        # 创建自定义对话框
+        dialog = wx.Dialog(self.GetParent(), title="修改打印机信息")
+        panel = wx.Panel(dialog)
+        sizer = wx.BoxSizer(wx.VERTICAL)
+
+        # 名称输入框
+        name_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        name_label = wx.StaticText(panel, label="名称:")
+        name_text = wx.TextCtrl(panel, value=current_data["name"])
+        name_sizer.Add(name_label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
+        name_sizer.Add(name_text, 1, wx.ALL | wx.EXPAND, 5)
+
+        # IP地址输入框
+        host_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        host_label = wx.StaticText(panel, label="IP地址:")
+        host_text = wx.TextCtrl(panel, value=current_data["hostname"])
+        host_sizer.Add(host_label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
+        host_sizer.Add(host_text, 1, wx.ALL | wx.EXPAND, 5)
+
+        # 访问码输入框
+        code_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        code_label = wx.StaticText(panel, label="访问码:")
+        code_text = wx.TextCtrl(panel, value=current_data["access_code"])
+        code_sizer.Add(code_label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
+        code_sizer.Add(code_text, 1, wx.ALL | wx.EXPAND, 5)
+
+        # 添加所有控件到主sizer
+        sizer.Add(name_sizer, 0, wx.EXPAND)
+        sizer.Add(host_sizer, 0, wx.EXPAND)
+        sizer.Add(code_sizer, 0, wx.EXPAND)
+
+        # 修改位置：将按钮直接添加到panel而不是使用CreateButtonSizer
+        btn_sizer = wx.StdDialogButtonSizer()
+        ok_btn = wx.Button(panel, wx.ID_OK)
+        cancel_btn = wx.Button(panel, wx.ID_CANCEL)
+        btn_sizer.AddButton(ok_btn)
+        btn_sizer.AddButton(cancel_btn)
+        btn_sizer.Realize()
+        sizer.Add(btn_sizer, 0, wx.ALL | wx.ALIGN_CENTER, 5)
+
+        panel.SetSizer(sizer)
+        dialog.SetSize(300, 300)  # Set width and height to 300px
+        dialog.Fit()
+
         if dialog.ShowModal() == wx.ID_OK:
-            new_data = dialog.GetValue().split(",")
-            if len(new_data) == 5:
-                for col, value in enumerate(new_data):
-                    self.SetCellValue(row, col, value)
+            # 更新数据库
+            printer_conf = PrinterConfInfo()
+            conf_info = models.BambuConfInfo(
+                name=name_text.GetValue(),
+                hostname=host_text.GetValue(),
+                access_code=code_text.GetValue(),
+                serial_number=current_data["serial_number"]
+            )
+            confi_id = printer_conf.get_all_conf_id(name=current_data['name'], hostname=current_data['hostname'],
+                                                    access_code=current_data['access_code'])
+            if confi_id < 0:
+                messagebox.showerror("错误", "不存在的打印机信息")
+                return
+            messagebox.showerror("错误", "不存在的打印机信息")
+            printer_conf.update_conf_info(confi_id, conf_info)
+
+            # 更新表格
+            self.SetCellValue(row, 0, name_text.GetValue())
+            self.SetCellValue(row, 1, host_text.GetValue())
+            self.SetCellValue(row, 2, code_text.GetValue())
+
         dialog.Destroy()
 
     def disable_printer(self, row):
@@ -119,11 +187,22 @@ class PrinterGrid(gridlib.Grid):
         self.SetCellValue(row, 3, note)
         self.SetCellValue(row, 4, tags)
 
+    def delete_printer(self, row):
+        """删除打印机"""
+        # 从数据库删除
+        printer_conf = PrinterConfInfo()
+        printer_conf.delete_conf_info(row + 1)  # 假设行号对应ID
+
+        # 从表格删除
+        self.DeleteRows(row)
+
 
 class PrinterManagementDialog(wx.Dialog):
     def __init__(self, parent):
         super().__init__(parent, title="打印机管理", size=(800, 600))
         self.panel = wx.Panel(self)
+        # self.Bind(wx.EVT_CLOSE, self.on_close)  # 绑定关闭事件
+        self.Bind(wx.EVT_WINDOW_DESTROY, self.on_close)
 
         # Set the background color to white
         self.panel.SetBackgroundColour(wx.Colour(247, 247, 247))
@@ -131,7 +210,7 @@ class PrinterManagementDialog(wx.Dialog):
 
         # Set the font for buttons and other controls
         font = wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL,
-                      wx.FONTWEIGHT_MEDIUM, False, "阿里妈妈方圆体 VF Medium")
+                       wx.FONTWEIGHT_MEDIUM, False, "阿里妈妈方圆体 VF Medium")
 
         # 顶部操作条
         self.toolbar = wx.Panel(self.panel)
@@ -142,7 +221,6 @@ class PrinterManagementDialog(wx.Dialog):
         bg_color = wx.Colour(237, 237, 237)
         for btn in [self.add_btn, self.del_btn]:
             btn.SetBackgroundColour(bg_color)
-            btn.Bind(wx.EVT_PAINT, _on_paint_button)
 
         # Apply font to buttons
         self.add_btn.SetFont(font)
@@ -170,7 +248,7 @@ class PrinterManagementDialog(wx.Dialog):
 
         main_sizer = wx.BoxSizer(wx.VERTICAL)
         main_sizer.Add(self.toolbar, 0, wx.EXPAND | wx.ALL, 5)
-        main_sizer.Add(self.grid, 1, wx.EXPAND | wx.ALL, 5)
+        main_sizer.Add(self.grid, 1, wx.ALL | wx.EXPAND, 5)
         main_sizer.Add(button_sizer, 0, wx.ALIGN_CENTER | wx.BOTTOM, 10)
         self.panel.SetSizer(main_sizer)
 
@@ -197,4 +275,22 @@ class PrinterManagementDialog(wx.Dialog):
         """删除按钮事件"""
         row = self.grid.GetGridCursorRow()
         if row >= 0:
-            self.grid.DeleteRows(row)
+            self.grid.delete_printer(row)
+
+    def on_close(self, event):
+        """关闭对话框时的事件处理"""
+        print('on_close')
+        self.grid.Destroy()
+
+        if not self:
+            return  # 如果已经被销毁，直接返回
+        print('to Close')
+        self.Close()  # 这会触发 EVT_CLOSE 事件
+        event.Skip()  # 确保事件继续传递
+
+    # def on_destroy(self, event):
+    #     """关闭对话框时的事件处理"""
+    #     print('on_destroy')
+    #     # self.EndModal(wx.ID_CLOSE)  # 先结束模态
+    #     # self.Destroy()  # 再销毁对话框
+    #     event.Skip()

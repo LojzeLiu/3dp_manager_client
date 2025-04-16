@@ -34,12 +34,20 @@ class PrinterConfInfo(object):
         return [models.BambuConfInfo(name=row[1], hostname=row[2], access_code=row[3], serial_number=row[4]) for row in
                 rows]
 
-    def update_conf_info(self, id, conf_info):
+    def get_all_conf_id(self, name: str, hostname: str, access_code: str):
+        self.cursor.execute('SELECT * FROM conf_info WHERE name = ? AND hostname=? AND access_code=?',
+                            (name, hostname, access_code))
+        rows = self.cursor.fetchall()
+        if len(rows) > 0:
+            return rows[0][0]
+        return -1
+
+    def update_conf_info(self, conf_id, conf_info: models.BambuConfInfo):
         self.cursor.execute('''
                 UPDATE conf_info
                 SET name = ?, hostname = ?, access_code = ?, serial_number = ?
                 WHERE id = ?
-            ''', (conf_info.name, conf_info.hostname, conf_info.access_code, conf_info.serial_number, id))
+            ''', (conf_info.name, conf_info.hostname, conf_info.access_code, conf_info.serial_number, conf_id))
         self.conn.commit()
 
     def delete_conf_info(self, id):
