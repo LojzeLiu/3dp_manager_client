@@ -3,7 +3,7 @@ mitmproxy~=9.0.1
 winproxy~=0.3.0a1
 requests~=2.32.0
 wxasync~=0.49
-cx_Freeze
+cx_Freeze~=8.1.0
 WMI~=1.5.1
 pyDes~=2.0.1
 python-dotenv
@@ -12,5 +12,9 @@ psutil~=5.9.8
 django-environ~=0.11.2
 
 pyttsx3~=2.98
-bs4
+bs4~=0.0.2
 
+
+paho-mqtt~=2.1.0
+beautifulsoup4~=4.13.4
+webcolors~=24.11.1

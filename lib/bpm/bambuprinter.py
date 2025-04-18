@@ -21,9 +21,6 @@ from .bambuconfig import BambuConfig
 
 from .ftpsclient.ftpsclient import IoTFTPSClient
 
-import os
-import atexit
-import logging.config
 import logging.handlers
 import copy
 

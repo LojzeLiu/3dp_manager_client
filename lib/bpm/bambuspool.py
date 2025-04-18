@@ -1,5 +1,3 @@
-from typing import Optional
-
 class BambuSpool:
     """
     This value object is used by `BambuPrinter` to enumerate "spools" connected to the printer.
