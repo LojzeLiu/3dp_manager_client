@@ -1,10 +1,5 @@
-import os
-
 import wx
 import gettext
-
-from wx.lib.buttons import GenButton
-
 import data
 import models
 import services
@@ -273,22 +268,6 @@ class HomeFrame(wx.Frame):
 
         self.Layout()  # 重新布局
         self.cards_container.Layout()  # 重新布局滚动区域
-        event.Skip()
-
-    def open_light(self, event):
-        self._printer_service.open_all_light()
-        event.Skip()
-
-    def close_light(self, event):
-        self._printer_service.close_all_light()
-        event.Skip()
-
-    def full_screen(self, event):
-        self.ShowFullScreen(True, style=wx.FULLSCREEN_NOCAPTION)
-        event.Skip()
-
-    def quit_full_screen(self, event):
-        self.ShowFullScreen(False)
         event.Skip()
 
     def on_key_down(self, event):
