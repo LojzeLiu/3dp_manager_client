@@ -5,3 +5,4 @@ from .env_set import env_set
 from .encrypt import encrypt
 from .api_check import generate_random_string
 from .printer_translater import printerTranslater
+from .icon_manager import icon_mgr

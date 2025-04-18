@@ -151,7 +151,7 @@ class BambuPrinterService:
                             hms_desc = item['desc']
                             utils.logger.debug(f'hms code:{code}; desc:{hms_desc}; attr:{attr}')
                         else:
-                            utils.logger.error(f'Unknown msg type, Code：{code}; Attr:{attr}')
+                            utils.logger.error(f'Unknown msg type, Code：{code}; Attr:{attr}; item:{item};')
 
                 if printer.gcode_state == "FAILED" and printer_state.last_gcode_state == "RUNNING":
                     # 发生错误，上一次是在运行中

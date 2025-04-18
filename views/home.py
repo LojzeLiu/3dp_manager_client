@@ -1,5 +1,9 @@
+import os
+
 import wx
 import gettext
+
+from wx.lib.buttons import GenButton
 
 import data
 import models
@@ -118,6 +122,8 @@ class HomeFrame(wx.Frame):
                           size=wx.Size(width, 650), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
         self._home_width = width
         self._card_width = 430
+        self._is_full_screen = False
+        self._is_led_open = False
 
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
         self.SetFont(wx.Font(18, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
@@ -156,6 +162,51 @@ class HomeFrame(wx.Frame):
         self.panel = wx.Panel(self)
         main_sizer = wx.BoxSizer(wx.VERTICAL)
 
+        # ========== 新增：顶部控制条 ==========
+        # 创建控制条面板
+        self.control_bar = wx.Panel(self.panel, size=(-1, 60))  # 高度80px适合触摸操作
+        control_bar_sizer = wx.BoxSizer(wx.HORIZONTAL)
+
+        # 按钮尺寸设置（宽度120px，高度70px适合触摸操作）
+        btn_size = wx.Size(60, 60)
+        top_btn_font = wx.Font(14, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
+                               "阿里妈妈方圆体 VF Medium")
+        top_btn_back_color = '#ffffff'
+
+        # LED 灯光控制按钮
+        self.top_btn_led_switch = wx.Button(self.control_bar, size=btn_size, style=wx.BORDER_NONE)
+        self.top_btn_led_switch.SetBitmap(wx.Bitmap(utils.icon_mgr.get_icon('led_close')))
+        self.top_btn_led_switch.SetBackgroundColour(top_btn_back_color)
+
+        # 全屏控制按钮
+        self.top_btn_full_screen = wx.Button(self.control_bar, size=btn_size, style=wx.BORDER_NONE)
+        self.top_btn_full_screen.SetBitmap(wx.Bitmap(utils.icon_mgr.get_icon('fullscreen-fill')))
+        self.top_btn_full_screen.SetBackgroundColour(top_btn_back_color)
+
+        # 语音通知开关控制按钮
+        self.top_btn_voice_info = wx.Button(self.control_bar, size=btn_size, style=wx.BORDER_NONE)
+        self.top_btn_voice_info.SetBitmap(wx.Bitmap(utils.icon_mgr.get_icon('volume-up-fill')))
+        self.top_btn_voice_info.SetBackgroundColour(top_btn_back_color)
+
+        # 打印机管理按钮
+        self.top_btn_printer_manager = wx.Button(self.control_bar, size=btn_size, style=wx.BORDER_NONE)
+        self.top_btn_printer_manager.SetBitmap(wx.Bitmap(utils.icon_mgr.get_icon('printer_manager')))
+        self.top_btn_printer_manager.SetBackgroundColour(top_btn_back_color)
+
+        # 将按钮添加到控制条
+        control_bar_sizer.Add(self.top_btn_led_switch, 0, wx.ALL, 5)
+        control_bar_sizer.Add(self.top_btn_full_screen, 0, wx.ALL, 5)
+        control_bar_sizer.Add(self.top_btn_voice_info, 0, wx.ALL, 5)
+        control_bar_sizer.Add(self.top_btn_printer_manager, 0, wx.ALL, 5)
+
+        # 添加弹性空间使按钮靠左
+        control_bar_sizer.AddStretchSpacer(1)
+        self.control_bar.SetSizer(control_bar_sizer)
+
+        # 将控制条添加到主布局
+        main_sizer.Add(self.control_bar, 0, wx.EXPAND | wx.ALL, 0)
+        # ========== 控制条结束 ==========
+
         self.cards_container = wx.ScrolledWindow(self.panel, style=wx.VSCROLL)
         self.cards_container.SetScrollRate(5, 5)
         card_cols_count = int(self._home_width / self._card_width)
@@ -165,25 +216,30 @@ class HomeFrame(wx.Frame):
         # Cards Container
         main_sizer.Add(self.cards_container, 1, wx.EXPAND | wx.ALL, 5)
 
-        # 初始化打印监控服务
-        self._printer_service = None
-        self._on_start_printer()
-
         self.panel.SetSizer(main_sizer)
         self.Layout()
-
         self.Show()
+
+        # 绑定控制条按钮事件
+        self.Bind(wx.EVT_BUTTON, self.on_led_switch, self.top_btn_led_switch)
+        self.Bind(wx.EVT_BUTTON, self.on_full_screen, self.top_btn_full_screen)
+        self.Bind(wx.EVT_BUTTON, self.on_printer_management, self.top_btn_printer_manager)
+        # self.Bind(wx.EVT_BUTTON, self.on_help, self.btn_help)
 
         self.Bind(wx.EVT_SIZE, self.on_resize)
         self.Bind(wx.EVT_MENU, self.open_light, id=self.m_menuItem2.GetId())
         self.Bind(wx.EVT_MENU, self.close_light, id=self.m_menuItem3.GetId())
-        self.Bind(wx.EVT_MENU, self.full_screen, id=self.m_full_screen.GetId())
+        # self.Bind(wx.EVT_MENU, self.full_screen, id=self.m_full_screen.GetId())
         self.Bind(wx.EVT_MENU, self.quit_full_screen, id=self.m_quit_full_screen.GetId())
-        self.Bind(wx.EVT_MENU, self.on_printer_management, id=self.m_menuItem1.GetId())
+        # self.Bind(wx.EVT_MENU, self.on_printer_management, id=self.top_btn_printer_manager.GetId())
 
         self.Bind(wx.EVT_KEY_DOWN, self.on_key_down)
         # 绑定窗口关闭事件
         self.Bind(wx.EVT_CLOSE, self.on_close)
+
+        # 初始化打印监控服务
+        self._printer_service = None
+        self._on_start_printer()
 
     def _on_start_printer(self):
         if self._printer_service:
@@ -197,9 +253,7 @@ class HomeFrame(wx.Frame):
 
         # Initialize cards for each printer
         self.card_panels = {}
-        print('services.PrinterStateList:', len(services.PrinterStateList), ';')
         for idx, printer_info in enumerate(services.PrinterStateList):
-            print('idx:', idx, ';')
             self.add_card(idx, printer_info)
 
     def _on_restart_printer(self):
@@ -215,7 +269,6 @@ class HomeFrame(wx.Frame):
         self.cards_sizer.Clear(delete_windows=True)
 
         # Create new cards for each printer
-        utils.logger.debug(f'Reloading printer cards, count: {len(services.PrinterStateList)}')
         for idx, printer_info in enumerate(services.PrinterStateList):
             self.add_card(idx, printer_info)
 
@@ -224,9 +277,7 @@ class HomeFrame(wx.Frame):
         self.cards_container.FitInside()
         self.Layout()
 
-
     def on_close(self, event):
-        utils.logger.debug('home frame closed')
         self._printer_service.close_all_sessions()
 
         # 确保框架关闭
@@ -234,7 +285,6 @@ class HomeFrame(wx.Frame):
 
     def add_card(self, idx, printer_info):
         """Add a new card for the given printer."""
-
         card = CardPanel(self.cards_container, printer_info, card_width=self._card_width, )
         printer_info.on_update = card.update
         self.cards_sizer.Add(card, 0, wx.ALL | wx.EXPAND, 5)
@@ -276,7 +326,6 @@ class HomeFrame(wx.Frame):
 
     def on_key_down(self, event):
         """处理键盘按下事件"""
-        print('event.GetKeyCode():', event.GetKeyCode())
         if event.GetKeyCode() == wx.WXK_ESCAPE:  # 检查是否按下 ESC 键
             self.ShowFullScreen(False)  # 退出全屏模式
         else:
@@ -288,4 +337,33 @@ class HomeFrame(wx.Frame):
         dialog.ShowModal()
         dialog.Destroy()
         self._on_restart_printer()
+        event.Skip()  # 处理其他键的事件
+
+    def on_led_switch(self, event):
+        """改变所有打印机灯光开关状态"""
+        if self._is_led_open:
+            # 当前开启状态，执行关闭灯光
+            self._printer_service.close_all_light()
+            self._is_led_open = False
+            btn_icon = 'led_close'
+        else:
+            # 当前关闭状态，执行开启灯光
+            self._printer_service.open_all_light()
+            self._is_led_open = True
+            btn_icon = 'led_open'
+        self.top_btn_led_switch.SetBitmap(wx.Bitmap(utils.icon_mgr.get_icon(btn_icon)))
+        event.Skip()  # 处理其他键的事件
+
+    def on_full_screen(self, event):
+        """改变窗口全屏状态"""
+        if self._is_full_screen:
+            # 当前在全屏，退出全屏
+            self._is_full_screen = False
+            btn_icon = 'fullscreen-fill'
+        else:
+            # 当前非全屏，进入全屏
+            self._is_full_screen = True
+            btn_icon = 'fullscreen-exit-fill'
+        self.ShowFullScreen(self._is_full_screen)
+        self.top_btn_full_screen.SetBitmap(wx.Bitmap(utils.icon_mgr.get_icon(btn_icon)))
         event.Skip()  # 处理其他键的事件
