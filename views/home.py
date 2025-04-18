@@ -129,34 +129,7 @@ class HomeFrame(wx.Frame):
         self.SetFont(wx.Font(18, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
                              "阿里妈妈方圆体 VF Medium"))
 
-        # 设置菜单字体
-        menu_font = wx.Font(14, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
-                            "阿里妈妈方圆体 VF Medium")
-        self.m_menubar1 = wx.MenuBar(0)
-        self.sys_menu = wx.Menu()
-        self.m_menuItem1 = wx.MenuItem(self.sys_menu, wx.ID_ANY, _(u"打印机管理"), wx.EmptyString, wx.ITEM_NORMAL)
-        self.m_menuItem1.SetFont(menu_font)
-        self.m_full_screen = wx.MenuItem(self.sys_menu, wx.ID_ANY, _(u"全屏"), wx.EmptyString, wx.ITEM_NORMAL)
-        self.m_full_screen.SetFont(menu_font)
-        self.m_quit_full_screen = wx.MenuItem(self.sys_menu, wx.ID_ANY, _(u"取消全屏"), wx.EmptyString, wx.ITEM_NORMAL)
-        self.m_quit_full_screen.SetFont(menu_font)
-        self.sys_menu.Append(self.m_menuItem1)
-        self.sys_menu.Append(self.m_full_screen)
-        self.sys_menu.Append(self.m_quit_full_screen)
 
-        self.m_menubar1.Append(self.sys_menu, _(u"设置"))
-        self.m_menu2 = wx.Menu()
-        self.m_menuItem2 = wx.MenuItem(self.m_menu2, wx.ID_ANY, _(u"开灯"), wx.EmptyString, wx.ITEM_NORMAL)
-        self.m_menuItem2.SetFont(menu_font)
-        self.m_menuItem3 = wx.MenuItem(self.m_menu2, wx.ID_ANY, _(u"关灯"), wx.EmptyString, wx.ITEM_NORMAL)
-        self.m_menuItem3.SetFont(menu_font)
-        self.m_menu2.Append(self.m_menuItem2)
-        self.m_menu2.Append(self.m_menuItem3)
-
-        self.m_menubar1.Append(self.m_menu2, _(u"操作"))
-
-        self.SetMenuBar(self.m_menubar1)
-        self.m_menubar1.SetFont(menu_font)
         self.m_statusBar1 = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
         self._printer_infos = []
         self.panel = wx.Panel(self)
@@ -227,12 +200,6 @@ class HomeFrame(wx.Frame):
         # self.Bind(wx.EVT_BUTTON, self.on_help, self.btn_help)
 
         self.Bind(wx.EVT_SIZE, self.on_resize)
-        self.Bind(wx.EVT_MENU, self.open_light, id=self.m_menuItem2.GetId())
-        self.Bind(wx.EVT_MENU, self.close_light, id=self.m_menuItem3.GetId())
-        # self.Bind(wx.EVT_MENU, self.full_screen, id=self.m_full_screen.GetId())
-        self.Bind(wx.EVT_MENU, self.quit_full_screen, id=self.m_quit_full_screen.GetId())
-        # self.Bind(wx.EVT_MENU, self.on_printer_management, id=self.top_btn_printer_manager.GetId())
-
         self.Bind(wx.EVT_KEY_DOWN, self.on_key_down)
         # 绑定窗口关闭事件
         self.Bind(wx.EVT_CLOSE, self.on_close)
