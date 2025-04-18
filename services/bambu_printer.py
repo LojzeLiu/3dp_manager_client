@@ -120,6 +120,10 @@ class BambuPrinterService:
         self._msg_handle.stop()  # 停止消息工作队列
         self._quit_all_session()
 
+    def switch_voice_info(self):
+        """开关语音通知"""
+        return self._msg_handle.switch_voice()
+
     def _quit_all_session(self):
         for key, printer in self._bambu_session_map.items():
             print('to quit:', key, ';')

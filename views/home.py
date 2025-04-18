@@ -124,7 +124,6 @@ class HomeFrame(wx.Frame):
         self.SetFont(wx.Font(18, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
                              "阿里妈妈方圆体 VF Medium"))
 
-
         self.m_statusBar1 = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
         self._printer_infos = []
         self.panel = wx.Panel(self)
@@ -191,6 +190,7 @@ class HomeFrame(wx.Frame):
         # 绑定控制条按钮事件
         self.Bind(wx.EVT_BUTTON, self.on_led_switch, self.top_btn_led_switch)
         self.Bind(wx.EVT_BUTTON, self.on_full_screen, self.top_btn_full_screen)
+        self.Bind(wx.EVT_BUTTON, self.on_switch_voice_info, self.top_btn_voice_info)
         self.Bind(wx.EVT_BUTTON, self.on_printer_management, self.top_btn_printer_manager)
         # self.Bind(wx.EVT_BUTTON, self.on_help, self.btn_help)
 
@@ -312,4 +312,16 @@ class HomeFrame(wx.Frame):
             btn_icon = 'fullscreen-exit-fill'
         self.ShowFullScreen(self._is_full_screen)
         self.top_btn_full_screen.SetBitmap(wx.Bitmap(utils.icon_mgr.get_icon(btn_icon)))
+        event.Skip()  # 处理其他键的事件
+
+    def on_switch_voice_info(self, event):
+        """开关语音通知"""
+        switch_state = self._printer_service.switch_voice_info()
+        if switch_state:
+            # 执行完后，是开启状态
+            btn_icon = 'volume-up-fill'
+        else:
+            # 执行完后，是关闭状态
+            btn_icon = 'volume-mute-fill'
+        self.top_btn_voice_info.SetBitmap(wx.Bitmap(utils.icon_mgr.get_icon(btn_icon)))
         event.Skip()  # 处理其他键的事件
