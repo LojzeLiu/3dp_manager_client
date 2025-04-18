@@ -5,6 +5,7 @@ import models
 build_options = dict(packages=["passlib", "asyncio", "pyttsx3", "bs4"], excludes=[],
                      include_files=[
                          "resources",
+                         "assets",
                          ".env",
                          "bambu.db",
                      ],
