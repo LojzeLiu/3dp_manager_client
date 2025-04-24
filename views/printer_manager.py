@@ -7,6 +7,7 @@ import models
 import utils
 from data import PrinterConfInfo
 from lib.bpm.bambutools import test_mqtt_connection
+from views.composes.custom_message_dialog import CustomMessageDialog
 
 
 class PrinterGrid(wx.grid.Grid):
@@ -30,7 +31,7 @@ class PrinterGrid(wx.grid.Grid):
 
         # Set grid font
         font = wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
-                       "阿里妈妈方圆体 VF Medium")
+                       models.About.font)
         self.SetDefaultCellFont(font)
         self.SetLabelFont(font)
 
@@ -214,11 +215,24 @@ class PrinterGrid(wx.grid.Grid):
         confi_id = printer_conf.get_all_conf_id(name=self.GetCellValue(row, 0),
                                                 hostname=self.GetCellValue(row, 1),
                                                 access_code=self.GetCellValue(row, 2))
-        # 从数据库删除
-        printer_conf.delete_conf_info(confi_id)
 
-        # 从表格删除
-        self.DeleteRows(row)
+        # 弹出确认对话框，提示用户是否确认删除
+        confirm_dialog = CustomMessageDialog(
+            None,
+            f"确认删除打印机：{self.GetCellValue(row, 0)}（主机：{self.GetCellValue(row, 1)}）吗？",
+            "删除确认"
+        )
+        confirm_dialog.ShowModal()
+
+        # 根据用户选择执行操作
+        if confirm_dialog.result == wx.ID_YES:
+            # 从数据库删除
+            printer_conf.delete_conf_info(confi_id)
+            # 从表格删除
+            self.DeleteRows(row)
+
+        # 销毁对话框
+        confirm_dialog.Destroy()
 
 
 class PrinterManagementDialog(wx.Dialog):
@@ -234,7 +248,7 @@ class PrinterManagementDialog(wx.Dialog):
 
         # Set the font for buttons and other controls
         font = wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL,
-                       wx.FONTWEIGHT_MEDIUM, False, "阿里妈妈方圆体 VF Medium")
+                       wx.FONTWEIGHT_MEDIUM, False, models.About.font)
 
         # 顶部操作条
         self.toolbar = wx.Panel(self.panel)

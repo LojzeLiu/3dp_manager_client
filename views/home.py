@@ -37,7 +37,7 @@ class CardPanel(wx.Panel):
         self.state_label.Wrap(-1)
 
         self.state_label.SetFont(wx.Font(22, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
-                                         "阿里妈妈方圆体 VF Medium"))
+                                         models.About.font))
 
         gSizer3.Add(self.state_label, 0, wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
 
@@ -48,27 +48,27 @@ class CardPanel(wx.Panel):
         self.layer_label = wx.StaticText(self, wx.ID_ANY, "层: 0/0", wx.DefaultPosition, wx.DefaultSize, 0)
         self.layer_label.Wrap(-1)
         self.layer_label.SetFont(wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
-                                         "阿里妈妈方圆体 VF Medium"))
+                                         models.About.font))
         gSizer4.Add(self.layer_label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
 
         self.time_label = wx.StaticText(self, wx.ID_ANY, "--h--m", wx.DefaultPosition, wx.DefaultSize, 0)
         self.time_label.Wrap(-1)
         self.time_label.SetFont(wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
-                                        "阿里妈妈方圆体 VF Medium"))
+                                        models.About.font))
         gSizer4.Add(self.time_label, 0, wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
         bSizer3.Add(gSizer4, 1, wx.EXPAND, 5)
 
         self.endtime_label = wx.StaticText(self, wx.ID_ANY, _(u"-- --"), wx.DefaultPosition, wx.DefaultSize, 0)
         self.endtime_label.Wrap(-1)
         self.endtime_label.SetFont(wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM,
-                                           False, "阿里妈妈方圆体 VF Medium"))
+                                           False, models.About.font))
         bSizer3.Add(self.endtime_label, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
 
         self.print_file_name = wx.StaticText(self, wx.ID_ANY, _(u"--"), wx.DefaultPosition, wx.DefaultSize, 0)
         self.print_file_name.Wrap(-1)
         self.print_file_name.SetFont(
             wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
-                    "阿里妈妈方圆体 VF Medium"))
+                    models.About.font))
         bSizer3.Add(self.print_file_name, 0, wx.ALL, 5)
 
         self.progress_bar = wx.Gauge(self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size(400, 3),
@@ -122,7 +122,7 @@ class HomeFrame(wx.Frame):
 
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
         self.SetFont(wx.Font(18, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
-                             "阿里妈妈方圆体 VF Medium"))
+                             models.About.font))
 
         self.m_statusBar1 = self.CreateStatusBar(1, wx.STB_SIZEGRIP, wx.ID_ANY)
         self._printer_infos = []
@@ -137,7 +137,7 @@ class HomeFrame(wx.Frame):
         # 按钮尺寸设置（宽度120px，高度70px适合触摸操作）
         btn_size = wx.Size(60, 60)
         top_btn_font = wx.Font(14, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
-                               "阿里妈妈方圆体 VF Medium")
+                               models.About.font)
         top_btn_back_color = '#ffffff'
 
         # LED 灯光控制按钮

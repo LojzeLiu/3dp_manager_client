@@ -13,6 +13,8 @@ import wx.xrc
 
 import gettext
 
+import models
+
 _ = gettext.gettext
 
 
@@ -28,7 +30,7 @@ class Home(wx.Frame):
 
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
         self.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
-                             "阿里妈妈方圆体 VF Medium"))
+                             models.About.font))
 
         self.m_menubar1 = wx.MenuBar(0)
         self.sys_menu = wx.Menu()
@@ -73,7 +75,7 @@ class Home(wx.Frame):
         self.state_label.Wrap(-1)
 
         self.state_label.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
-                                         "阿里妈妈方圆体 VF Medium"))
+                                         models.About.font))
 
         gSizer3.Add(self.state_label, 0, wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
 
@@ -86,7 +88,7 @@ class Home(wx.Frame):
         self.layer_label.Wrap(-1)
 
         self.layer_label.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
-                                         "阿里妈妈方圆体 VF Medium"))
+                                         models.About.font))
 
         gSizer4.Add(self.layer_label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
 
@@ -95,7 +97,7 @@ class Home(wx.Frame):
         self.time_label.Wrap(-1)
 
         self.time_label.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
-                                        "阿里妈妈方圆体 VF Medium"))
+                                        models.About.font))
 
         gSizer4.Add(self.time_label, 0, wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
 
@@ -106,7 +108,7 @@ class Home(wx.Frame):
         self.endtime_label.Wrap(-1)
 
         self.endtime_label.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
-                                           "阿里妈妈方圆体 VF Medium"))
+                                           models.About.font))
 
         bSizer3.Add(self.endtime_label, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
 
