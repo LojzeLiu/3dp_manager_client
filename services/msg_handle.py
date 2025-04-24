@@ -7,6 +7,7 @@ import requests
 import wx
 
 import utils
+from views.composes.custom_message_dialog import CustomMessageDialog
 
 engine = pyttsx3.init()
 
@@ -44,43 +45,45 @@ class MsgHandle:
         engine.setProperty('volume', 1)
 
         if message.level == 1:
-            # 创建确认对话框
-            dlg = wx.MessageDialog(None, message.msg, '提示', wx.OK | wx.CANCEL | wx.ICON_INFORMATION)
-            dlg.Show()  # 显示对话框
-            if self._open_voice:
-                # 使用线程来播放声音，以避免阻塞主线程
-                self.playing = True
+            # 使用wx.CallAfter将UI操作调度到主线程
+            def show_dialog():
+                dlg = CustomMessageDialog(
+                    None,
+                    message.msg,
+                    '提示',
+                    yes_btn_title='明 白',
+                    show_no_btn=False,
+                    yes_btn_color="#1db33c",
+                    center=True
+                )
 
-                def play_message():
-                    sleep_count = 5
-                    sleep_num = 0
-                    while self.playing:
-                        if sleep_num >= sleep_count:
-                            engine.say(message.msg)
-                            engine.runAndWait()
-                            sleep_num = 0
-                            sleep_count += 5
-                            if sleep_count >= 60 * 5:
-                                sleep_count = sleep_count
-                        else:
-                            sleep_num += 1
-                        time.sleep(1)
+                if self._open_voice:
+                    self.playing = True
 
-                # 语音通知开启状态启动播放线程
-                play_thread = threading.Thread(target=play_message)
-                play_thread.start()
+                    def play_message():
+                        sleep_count = 5
+                        sleep_num = 0
+                        while self.playing:
+                            if sleep_num >= sleep_count:
+                                engine.say(message.msg)
+                                engine.runAndWait()
+                                sleep_num = 0
+                                sleep_count += 5
+                                if sleep_count >= 60 * 5:
+                                    sleep_count = sleep_count
+                            else:
+                                sleep_num += 1
+                            time.sleep(1)
 
-                # 等待用户的响应
-                user_response = dlg.ShowModal()  # 模态对话框，等待用户响应
+                    play_thread = threading.Thread(target=play_message)
+                    play_thread.start()
 
-                # 用户点击了确认按钮
-                if user_response == wx.ID_OK:
+                    dlg.ShowModal()
                     self.playing = False
-                else:
-                    self.playing = False
+                    dlg.Destroy()
+                    play_thread.join()
 
-                dlg.Destroy()  # 销毁对话框
-                play_thread.join()  # 等待播放线程结束
+            wx.CallAfter(show_dialog)  # 确保对话框在主线程中显示
         else:
             if self._open_voice:
                 engine.say(message.msg)

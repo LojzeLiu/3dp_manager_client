@@ -7,7 +7,8 @@ import models
 class CustomMessageDialog(wx.Dialog):
     def __init__(self, parent, message, title,
                  yes_btn_color="#fc3100", no_btn_color="#1db33c",
-                 show_no_btn=True):
+                 yes_btn_title="是", no_btn_title="否",
+                 show_no_btn=True, center=False):
         super().__init__(parent, title=title)
         self.result = None  # 用于存储用户选择结果
         panel = wx.Panel(self)
@@ -27,7 +28,7 @@ class CustomMessageDialog(wx.Dialog):
         # 创建"是"按钮（无边框）
         btn_width = 180
         btn_height = 50
-        yes_btn = wx.Button(panel, label="是", size=wx.Size(btn_width, btn_height),
+        yes_btn = wx.Button(panel, label=yes_btn_title, size=wx.Size(btn_width, btn_height),
                             style=wx.BORDER_NONE)
         yes_btn.SetBackgroundColour(wx.Colour(yes_btn_color))
         # 设置按钮文字样式
@@ -39,7 +40,7 @@ class CustomMessageDialog(wx.Dialog):
 
         # 根据参数决定是否创建"否"按钮
         if show_no_btn:
-            no_btn = wx.Button(panel, label="否", size=wx.Size(btn_width, btn_height),
+            no_btn = wx.Button(panel, label=no_btn_title, size=wx.Size(btn_width, btn_height),
                                style=wx.BORDER_NONE)
             no_btn.SetBackgroundColour(wx.Colour(no_btn_color))
             no_btn.SetFont(btn_font)
@@ -58,6 +59,9 @@ class CustomMessageDialog(wx.Dialog):
         self.SetSize(wx.Size(400, 200))
         # 禁止用户调整窗口大小
         self.SetWindowStyleFlag(wx.DEFAULT_DIALOG_STYLE & ~wx.RESIZE_BORDER)
+        if center:
+            # 窗口居中显示
+            self.Center()
 
     def on_yes(self, event):
         self.result = wx.ID_YES
