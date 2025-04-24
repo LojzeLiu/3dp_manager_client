@@ -131,7 +131,7 @@ class HomeFrame(wx.Frame):
 
         # ========== 新增：顶部控制条 ==========
         # 创建控制条面板
-        self.control_bar = wx.Panel(self.panel, size=(-1, 60))  # 高度80px适合触摸操作
+        self.control_bar = wx.Panel(self.panel, size=wx.Size(-1, 60))  # 高度80px适合触摸操作
         control_bar_sizer = wx.BoxSizer(wx.HORIZONTAL)
 
         # 按钮尺寸设置（宽度120px，高度70px适合触摸操作）
@@ -142,23 +142,23 @@ class HomeFrame(wx.Frame):
 
         # LED 灯光控制按钮
         self.top_btn_led_switch = wx.Button(self.control_bar, size=btn_size, style=wx.BORDER_NONE)
-        self.top_btn_led_switch.SetBitmap(wx.Bitmap(utils.icon_mgr.get_icon('led_close')))
-        self.top_btn_led_switch.SetBackgroundColour(top_btn_back_color)
+        self.top_btn_led_switch.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon('led_close'))))
+        self.top_btn_led_switch.SetBackgroundColour(wx.Colour(top_btn_back_color))
 
         # 全屏控制按钮
         self.top_btn_full_screen = wx.Button(self.control_bar, size=btn_size, style=wx.BORDER_NONE)
-        self.top_btn_full_screen.SetBitmap(wx.Bitmap(utils.icon_mgr.get_icon('fullscreen-fill')))
-        self.top_btn_full_screen.SetBackgroundColour(top_btn_back_color)
+        self.top_btn_full_screen.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon('fullscreen-fill'))))
+        self.top_btn_full_screen.SetBackgroundColour(wx.Colour(top_btn_back_color))
 
         # 语音通知开关控制按钮
         self.top_btn_voice_info = wx.Button(self.control_bar, size=btn_size, style=wx.BORDER_NONE)
-        self.top_btn_voice_info.SetBitmap(wx.Bitmap(utils.icon_mgr.get_icon('volume-up-fill')))
-        self.top_btn_voice_info.SetBackgroundColour(top_btn_back_color)
+        self.top_btn_voice_info.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon('volume-up-fill'))))
+        self.top_btn_voice_info.SetBackgroundColour(wx.Colour(top_btn_back_color))
 
         # 打印机管理按钮
         self.top_btn_printer_manager = wx.Button(self.control_bar, size=btn_size, style=wx.BORDER_NONE)
-        self.top_btn_printer_manager.SetBitmap(wx.Bitmap(utils.icon_mgr.get_icon('printer_manager')))
-        self.top_btn_printer_manager.SetBackgroundColour(top_btn_back_color)
+        self.top_btn_printer_manager.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon('printer_manager'))))
+        self.top_btn_printer_manager.SetBackgroundColour(wx.Colour(top_btn_back_color))
 
         # 将按钮添加到控制条
         control_bar_sizer.Add(self.top_btn_led_switch, 0, wx.ALL, 5)
@@ -297,7 +297,7 @@ class HomeFrame(wx.Frame):
             self._printer_service.open_all_light()
             self._is_led_open = True
             btn_icon = 'led_open'
-        self.top_btn_led_switch.SetBitmap(wx.Bitmap(utils.icon_mgr.get_icon(btn_icon)))
+        self.top_btn_led_switch.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon(btn_icon))))
         event.Skip()  # 处理其他键的事件
 
     def on_full_screen(self, event):
@@ -311,7 +311,7 @@ class HomeFrame(wx.Frame):
             self._is_full_screen = True
             btn_icon = 'fullscreen-exit-fill'
         self.ShowFullScreen(self._is_full_screen)
-        self.top_btn_full_screen.SetBitmap(wx.Bitmap(utils.icon_mgr.get_icon(btn_icon)))
+        self.top_btn_full_screen.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon(btn_icon))))
         event.Skip()  # 处理其他键的事件
 
     def on_switch_voice_info(self, event):
@@ -323,5 +323,5 @@ class HomeFrame(wx.Frame):
         else:
             # 执行完后，是关闭状态
             btn_icon = 'volume-mute-fill'
-        self.top_btn_voice_info.SetBitmap(wx.Bitmap(utils.icon_mgr.get_icon(btn_icon)))
+        self.top_btn_voice_info.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon(btn_icon))))
         event.Skip()  # 处理其他键的事件

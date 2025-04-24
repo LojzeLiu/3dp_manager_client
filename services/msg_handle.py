@@ -31,7 +31,6 @@ class MsgHandle:
 
         self.send_worker_thread = threading.Thread(target=self.run_send_worker)  # 创建线程以运行消息处理程序
         self.send_worker_thread.start()  # 启动线程
-        self.playing = False
         self._wc_send_url = wc_send_url
         self._open_voice = True
 
@@ -58,12 +57,12 @@ class MsgHandle:
                 )
 
                 if self._open_voice:
-                    self.playing = True
+                    self.stop_event = threading.Event()  # 用于控制线程退出
 
                     def play_message():
                         sleep_count = 5
                         sleep_num = 0
-                        while self.playing:
+                        while not self.stop_event.is_set():  # 使用Event替代布尔标志
                             if sleep_num >= sleep_count:
                                 engine.say(message.msg)
                                 engine.runAndWait()
@@ -74,14 +73,15 @@ class MsgHandle:
                             else:
                                 sleep_num += 1
                             time.sleep(1)
+                        print('to end play message.')
 
-                    play_thread = threading.Thread(target=play_message)
+                    play_thread = threading.Thread(target=play_message, daemon=True)  # 设置为守护线程
                     play_thread.start()
 
                     dlg.ShowModal()
-                    self.playing = False
+                    self.stop_event.set()  # 通知线程退出
                     dlg.Destroy()
-                    play_thread.join()
+                    play_thread.join(timeout=1)  # 设置超时避免无限等待
 
             wx.CallAfter(show_dialog)  # 确保对话框在主线程中显示
         else:
@@ -137,6 +137,9 @@ class MsgHandle:
         self.send_loop.call_soon_threadsafe(self.send_msg_queue.put_nowait, msg)  # 使用 call_soon_threadsafe 确保线程安全
 
     def send_txt_msg_to_wechat(self, msg):
+        if not self._wc_send_url:
+            utils.logger.debug(f'wc send url is error:{self._wc_send_url};')
+            return
         headers = {"Content-Type": "application/json"}
         send_data = {
             "msgtype": "text",  # 消息类型，此时固定为text
