@@ -101,7 +101,6 @@ class MsgHandle:
                 continue
             except Exception as e:
                 utils.logger.error(f"Error in sending message to WeChat: {e}")
-        utils.logger.debug('send_messages_to_wechat exiting')
 
     async def worker(self):
         while self._running:  # 使用初始化的 _running 属性
