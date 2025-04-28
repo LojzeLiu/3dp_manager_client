@@ -1,6 +1,7 @@
 import gettext
 import wx
 import models
+import utils
 
 _ = gettext.gettext
 
@@ -73,6 +74,29 @@ class CardPanel(wx.Panel):
         self.progress_bar.SetMaxSize(wx.Size(400, 3))
 
         bSizer3.Add(self.progress_bar, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
+
+        # === 新增操作条 ===
+        # 创建操作条面板，高度固定为50px，宽度与卡片相同
+        self.control_bar = wx.Panel(self, size=wx.Size(card_width, 50))
+        self.control_bar.SetBackgroundColour(wx.Colour(255, 255, 255))  # 浅灰色背景
+
+        # 创建LED控制按钮
+        btn_size = wx.Size(40, 40)  # 按钮大小
+        top_btn_back_color = "#ffffff"  # 按钮背景色
+
+        self.top_btn_led_switch = wx.Button(self.control_bar, size=btn_size, style=wx.BORDER_NONE)
+        # 设置按钮图标（假设utils.icon_mgr已定义）
+        self.top_btn_led_switch.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon('led_close'))))
+        self.top_btn_led_switch.SetBackgroundColour(wx.Colour(top_btn_back_color))
+
+        # 将按钮添加到操作条
+        control_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        control_sizer.Add(self.top_btn_led_switch, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 10)
+        self.control_bar.SetSizer(control_sizer)
+
+        # 将操作条添加到主布局
+        bSizer3.Add(self.control_bar, 0, wx.EXPAND | wx.TOP, 5)
+        # === 操作条添加结束 ===
 
         self.SetSizer(bSizer3)
         self.Layout()
