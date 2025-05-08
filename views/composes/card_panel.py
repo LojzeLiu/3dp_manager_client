@@ -90,14 +90,28 @@ class CardPanel(wx.Panel):
         btn_size = wx.Size(40, 40)  # 按钮大小
         top_btn_back_color = "#ffffff"  # 按钮背景色
 
-        self.top_btn_led_switch = wx.Button(self.control_bar, size=btn_size, style=wx.BORDER_NONE)
+        self.btn_led_switch = wx.Button(self.control_bar, size=btn_size, style=wx.BORDER_NONE)
         # 设置按钮图标（假设utils.icon_mgr已定义）
-        self.top_btn_led_switch.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon('led_close'))))
-        self.top_btn_led_switch.SetBackgroundColour(wx.Colour(top_btn_back_color))
+        self.btn_led_switch.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon('led_close'))))
+        self.btn_led_switch.SetBackgroundColour(wx.Colour(top_btn_back_color))
+
+        # 打印作业继续暂停操作按钮
+        self.btn_pla_suspend = wx.Button(self.control_bar, size=btn_size, style=wx.BORDER_NONE)
+        self.btn_pla_suspend.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon('pause-line'))))
+        self.btn_pla_suspend.SetBackgroundColour(wx.Colour(top_btn_back_color))
+        # self.btn_pla_suspend.Disable()
+
+        # 打印作业停止按钮
+        self.btn_stop = wx.Button(self.control_bar, size=btn_size, style=wx.BORDER_NONE)
+        self.btn_stop.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon('stop-fill'))))
+        self.btn_stop.SetBackgroundColour(wx.Colour(top_btn_back_color))
+        self.btn_stop.Disable()
 
         # 将按钮添加到操作条
         control_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        control_sizer.Add(self.top_btn_led_switch, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 10)
+        control_sizer.Add(self.btn_led_switch, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 10)
+        control_sizer.Add(self.btn_pla_suspend, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 10)
+        control_sizer.Add(self.btn_stop, 0, wx.ALIGN_CENTER_VERTICAL | wx.LEFT, 10)
         self.control_bar.SetSizer(control_sizer)
 
         # 将操作条添加到主布局
@@ -105,13 +119,15 @@ class CardPanel(wx.Panel):
         # === 操作条添加结束 ===
 
         # 绑定按钮事件
-        self.Bind(wx.EVT_BUTTON, self.switch_light, self.top_btn_led_switch)
+        self.Bind(wx.EVT_BUTTON, self.switch_light, self.btn_led_switch)
 
         self.SetSizer(b_sizer3)
         self.Layout()
 
-    def update(self, printer:models.PrinterInfo):
+    def update(self, printer: models.PrinterInfo):
         """Update the card with the latest printer data."""
+        # 根据打印状态，更新打印作业操作按钮
+        self.on_update_ope_btn_state(printer.gcode_state)
         self.on_update_light_state(printer.light_state)
         is_change = False
         if self.state_label.GetLabel() != printer.gcode_state:
@@ -179,7 +195,7 @@ class CardPanel(wx.Panel):
         self._printer.close_sessions()
         event.Skip()
 
-    def on_update_light_state(self,state):
+    def on_update_light_state(self, state):
         """
         更新灯光状态
         """
@@ -192,4 +208,22 @@ class CardPanel(wx.Panel):
             btn_icon = 'led_open'
         else:
             btn_icon = 'led_close'
-        self.top_btn_led_switch.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon(btn_icon))))
+        self.btn_led_switch.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon(btn_icon))))
+
+    def on_update_ope_btn_state(self, gcode_state: str):
+        btn_icon = 'pause-line'
+        if gcode_state == "打印中":
+            # 当前机器正在打印中，按钮显示：暂停、停止
+            btn_icon = 'pause-line'
+            self.btn_stop.Enable()
+        elif gcode_state == "发生错误" or gcode_state == "暂停中":
+            # 当前机器发生错误或者暂停中，按钮显示：开始、停止
+            btn_icon = 'play-line'
+            self.btn_stop.Enable()
+        elif gcode_state == "空闲中" or gcode_state == "已完成":
+            # 当前机器空闲中或者已完成，按钮显示：开始、停止（禁用）
+            btn_icon = 'play-line'
+            self.btn_stop.Disable()
+        else:
+            utils.logger.debug(f'{self._printer_conf.name}; unknow gcode state:{gcode_state}；')
+        self.btn_pla_suspend.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon(btn_icon))))

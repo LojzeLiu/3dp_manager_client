@@ -22,12 +22,6 @@ class BambuPrinterService:
         send_url = utils.env_set.WECHAT_SEND_URL
         self._msg_handle = MsgHandle(send_url)
 
-        # for bambu_config in self._bambu_config_list:
-        #     printer_info = models.PrinterInfo()
-        #     printer_info.name = bambu_config.name
-        #     printer_info.serial_number = bambu_config.serial_number
-        #     PrinterStateList.append(printer_info)
-
     def start_session(self):
         curr_conf = BambuConfig(self._bambu_config.hostname, self._bambu_config.access_code,
                                 self._bambu_config.serial_number, printer_name=self._bambu_config.name)
