@@ -2,12 +2,12 @@ import wx
 import gettext
 import data
 import models
-import services
 import utils
 from views import composes
 from views.printer_manager import PrinterManagementDialog
 
 _ = gettext.gettext
+
 
 class HomeFrame(wx.Frame):
     def __init__(self, parent, width=980):
@@ -18,6 +18,7 @@ class HomeFrame(wx.Frame):
         self._card_width = 430
         self._is_full_screen = False
         self._is_led_open = False
+        self._printer_conf_list = []
 
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
         self.SetFont(wx.Font(18, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
@@ -99,39 +100,27 @@ class HomeFrame(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.on_close)
 
         # 初始化打印监控服务
-        self._printer_service = None
         self._on_start_printer()
 
     def _on_start_printer(self):
-        if self._printer_service:
-            self._printer_service.close_all_sessions()
-            self._printer_service = None
         printer_conf = data.PrinterConfInfo()
         printer_conf.setup_table()
-        pcl = printer_conf.get_all_conf_info()
-        self._printer_service = services.BambuPrinterService(pcl)
-        self._printer_service.start_session()
+        self._printer_conf_list = printer_conf.get_all_conf_info()
 
-        # Initialize cards for each printer
-        self.card_panels = {}
-        for idx, printer_info in enumerate(services.PrinterStateList):
-            self.add_card(idx, printer_info)
+        self._card_panels: list[composes.CardPanel] = []
+        self.init_cards()
 
     def _on_restart_printer(self):
         printer_conf = data.PrinterConfInfo()
         printer_conf.setup_table()
-        pcl = printer_conf.get_all_conf_info()
-        self._printer_service.restart_session(pcl)
+        self._printer_conf_list = printer_conf.get_all_conf_info()
 
         # Clear existing cards
-        for card in self.card_panels.values():
+        for card in self._card_panels:
             card.Destroy()
-        self.card_panels.clear()
+        self._card_panels.clear()
         self.cards_sizer.Clear(delete_windows=True)
-
-        # Create new cards for each printer
-        for idx, printer_info in enumerate(services.PrinterStateList):
-            self.add_card(idx, printer_info)
+        self.init_cards()
 
         # Force layout update
         self.cards_container.Layout()
@@ -139,21 +128,22 @@ class HomeFrame(wx.Frame):
         self.Layout()
 
     def on_close(self, event):
-        self._printer_service.close_all_sessions()
+        for card_panel in self._card_panels:
+            card_panel.to_close_session(event)
 
         # 确保框架关闭
         self.Destroy()
 
-    def add_card(self, idx, printer_info):
+    def init_cards(self):
         """Add a new card for the given printer."""
-        card = composes.CardPanel(self.cards_container, printer_info, card_width=self._card_width, )
-        printer_info.on_update = card.update
-        self.cards_sizer.Add(card, 0, wx.ALL | wx.EXPAND, 5)
-        self.card_panels[idx] = card
-        self.cards_container.Layout()
-        self.cards_container.FitInside()
-        # self.SetSizer( self.cards_sizer )
-        # self.Layout()
+        for printer_conf in self._printer_conf_list:
+            card = composes.CardPanel(self.cards_container, printer_conf, card_width=self._card_width)
+            self.cards_sizer.Add(card, 0, wx.ALL | wx.EXPAND, 5)
+            self._card_panels.append(card)
+            self.cards_container.Layout()
+            self.cards_container.FitInside()
+            # self.SetSizer( self.cards_sizer )
+            # self.Layout()
 
     def on_resize(self, event):
         """Handle window resize event."""
@@ -188,12 +178,14 @@ class HomeFrame(wx.Frame):
         """改变所有打印机灯光开关状态"""
         if self._is_led_open:
             # 当前开启状态，执行关闭灯光
-            self._printer_service.close_all_light()
+            for card_panel in self._card_panels:
+                card_panel.to_close_light(event)
             self._is_led_open = False
             btn_icon = 'led_close'
         else:
             # 当前关闭状态，执行开启灯光
-            self._printer_service.open_all_light()
+            for card_panel in self._card_panels:
+                card_panel.to_open_light(event)
             self._is_led_open = True
             btn_icon = 'led_open'
         self.top_btn_led_switch.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon(btn_icon))))
@@ -215,7 +207,9 @@ class HomeFrame(wx.Frame):
 
     def on_switch_voice_info(self, event):
         """开关语音通知"""
-        switch_state = self._printer_service.switch_voice_info()
+        switch_state = True
+        for card_panel in self._card_panels:
+            switch_state = card_panel.to_switch_voice_info(event)
         if switch_state:
             # 执行完后，是开启状态
             btn_icon = 'volume-up-fill'

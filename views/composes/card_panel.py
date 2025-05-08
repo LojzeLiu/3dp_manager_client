@@ -1,13 +1,14 @@
 import gettext
 import wx
 import models
+import services
 import utils
 
 _ = gettext.gettext
 
 
 class CardPanel(wx.Panel):
-    def __init__(self, parent, printer_info: models.PrinterInfo, card_width=440):
+    def __init__(self, parent, printer_conf: models.BambuConfInfo, card_width=440):
         super(CardPanel, self).__init__(parent, wx.ID_ANY, wx.DefaultPosition, wx.Size(card_width, -1),
                                         wx.BORDER_SIMPLE | wx.TAB_TRAVERSAL)
         self.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
@@ -15,10 +16,15 @@ class CardPanel(wx.Panel):
         self.SetMinSize(wx.Size(card_width, -1))
         self.SetMaxSize(wx.Size(card_width, -1))
 
-        self.printer_name = printer_info.name
-        self._printer = printer_info
-        bSizer3 = wx.BoxSizer(wx.VERTICAL)
-        gSizer3 = wx.GridSizer(1, 2, 0, 0)
+        self.printer_name = printer_conf.name
+        self._printer_conf = printer_conf
+        self._printer = services.BambuPrinterService(self._printer_conf)
+        self._printer.set_state_update(self.update)
+        self._printer.start_session()
+        self._is_led_open = False
+
+        b_sizer3 = wx.BoxSizer(wx.VERTICAL)
+        g_sizer3 = wx.GridSizer(1, 2, 0, 0)
 
         self.name_label = wx.StaticText(self, wx.ID_ANY, _(self.printer_name), wx.DefaultPosition, wx.DefaultSize,
                                         0)
@@ -27,7 +33,7 @@ class CardPanel(wx.Panel):
         self.name_label.SetFont(
             wx.Font(22, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, "阿里妈妈方圆体 VF"))
 
-        gSizer3.Add(self.name_label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
+        g_sizer3.Add(self.name_label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
 
         self.state_label = wx.StaticText(self, wx.ID_ANY, _(u"状态：--"), wx.DefaultPosition,
                                          wx.DefaultSize, 0)
@@ -36,44 +42,44 @@ class CardPanel(wx.Panel):
         self.state_label.SetFont(wx.Font(22, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
                                          models.About.font))
 
-        gSizer3.Add(self.state_label, 0, wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
+        g_sizer3.Add(self.state_label, 0, wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
 
-        bSizer3.Add(gSizer3, 1, wx.EXPAND, 5)
+        b_sizer3.Add(g_sizer3, 1, wx.EXPAND, 5)
 
-        gSizer4 = wx.GridSizer(1, 2, 0, 0)
+        g_sizer4 = wx.GridSizer(1, 2, 0, 0)
 
         self.layer_label = wx.StaticText(self, wx.ID_ANY, "层: 0/0", wx.DefaultPosition, wx.DefaultSize, 0)
         self.layer_label.Wrap(-1)
         self.layer_label.SetFont(wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
                                          models.About.font))
-        gSizer4.Add(self.layer_label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
+        g_sizer4.Add(self.layer_label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
 
         self.time_label = wx.StaticText(self, wx.ID_ANY, "--h--m", wx.DefaultPosition, wx.DefaultSize, 0)
         self.time_label.Wrap(-1)
         self.time_label.SetFont(wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
                                         models.About.font))
-        gSizer4.Add(self.time_label, 0, wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
-        bSizer3.Add(gSizer4, 1, wx.EXPAND, 5)
+        g_sizer4.Add(self.time_label, 0, wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
+        b_sizer3.Add(g_sizer4, 1, wx.EXPAND, 5)
 
         self.endtime_label = wx.StaticText(self, wx.ID_ANY, _(u"-- --"), wx.DefaultPosition, wx.DefaultSize, 0)
         self.endtime_label.Wrap(-1)
         self.endtime_label.SetFont(wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM,
                                            False, models.About.font))
-        bSizer3.Add(self.endtime_label, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
+        b_sizer3.Add(self.endtime_label, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
 
         self.print_file_name = wx.StaticText(self, wx.ID_ANY, _(u"--"), wx.DefaultPosition, wx.DefaultSize, 0)
         self.print_file_name.Wrap(-1)
         self.print_file_name.SetFont(
             wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM, False,
                     models.About.font))
-        bSizer3.Add(self.print_file_name, 0, wx.ALL, 5)
+        b_sizer3.Add(self.print_file_name, 0, wx.ALL, 5)
 
         self.progress_bar = wx.Gauge(self, wx.ID_ANY, 100, wx.DefaultPosition, wx.Size(400, 3),
                                      wx.GA_HORIZONTAL)
         self.progress_bar.SetValue(0)
         self.progress_bar.SetMaxSize(wx.Size(400, 3))
 
-        bSizer3.Add(self.progress_bar, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
+        b_sizer3.Add(self.progress_bar, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 5)
 
         # === 新增操作条 ===
         # 创建操作条面板，高度固定为50px，宽度与卡片相同
@@ -95,14 +101,18 @@ class CardPanel(wx.Panel):
         self.control_bar.SetSizer(control_sizer)
 
         # 将操作条添加到主布局
-        bSizer3.Add(self.control_bar, 0, wx.EXPAND | wx.TOP, 5)
+        b_sizer3.Add(self.control_bar, 0, wx.EXPAND | wx.TOP, 5)
         # === 操作条添加结束 ===
 
-        self.SetSizer(bSizer3)
+        # 绑定按钮事件
+        self.Bind(wx.EVT_BUTTON, self.switch_light, self.top_btn_led_switch)
+
+        self.SetSizer(b_sizer3)
         self.Layout()
 
-    def update(self, printer):
+    def update(self, printer:models.PrinterInfo):
         """Update the card with the latest printer data."""
+        self.on_update_light_state(printer.light_state)
         is_change = False
         if self.state_label.GetLabel() != printer.gcode_state:
             self.state_label.SetForegroundColour(wx.Colour(printer.gcode_state_color))
@@ -128,3 +138,58 @@ class CardPanel(wx.Panel):
 
         if is_change:
             self.Layout()
+
+    def switch_light(self, event):
+        """
+        打印机灯光开关
+        """
+        if self._is_led_open:
+            self.to_close_light(event)
+        else:
+            self.to_open_light(event)
+
+    def to_open_light(self, event):
+        """
+        打开打印机LED灯光
+        """
+        self._printer.open_light()
+        self.on_update_light_state(True)
+        event.Skip()
+
+    def to_close_light(self, event):
+        """
+        关闭打印机LED灯光
+        """
+        self._printer.close_light()
+        self.on_update_light_state(False)
+        event.Skip()
+
+    def to_switch_voice_info(self, event):
+        """
+        改变打印机语音通知状态
+        """
+        state = self._printer.switch_voice_info()
+        event.Skip()
+        return state
+
+    def to_close_session(self, event):
+        """
+        关闭打印机状态监听对话
+        """
+        self._printer.close_sessions()
+        event.Skip()
+
+    def on_update_light_state(self,state):
+        """
+        更新灯光状态
+        """
+        if state == self._is_led_open:
+            # 灯光状态相同什么都不做
+            return
+        self._is_led_open = state
+        if self._is_led_open:
+            # 灯光开启状态
+            btn_icon = 'led_open'
+        else:
+            btn_icon = 'led_close'
+        self.top_btn_led_switch.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon(btn_icon))))

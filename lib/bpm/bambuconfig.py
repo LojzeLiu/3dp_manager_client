@@ -1,17 +1,9 @@
-import os
-import atexit
-import logging.config
-import logging.handlers
-import json
-
 from typing import Optional
 
-from bpm.bambutools import getModelBySerial, PrinterModel
+from .bambutools import getModelBySerial, PrinterModel
 
 import utils
 
-
-# logger = logging.getLogger("bambuprinter")
 
 class BambuConfig:
     """
