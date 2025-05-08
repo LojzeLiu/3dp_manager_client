@@ -3,7 +3,7 @@ import wx
 import models
 import services
 import utils
-from views.composes import CustomMessageDialog
+from .custom_message_dialog import CustomMessageDialog
 
 _ = gettext.gettext
 
@@ -131,7 +131,7 @@ class CardPanel(wx.Panel):
         """Update the card with the latest printer data."""
         # 根据打印状态，更新打印作业操作按钮
         self.on_update_ope_btn_state(printer.gcode_state)
-        self.on_update_light_state(printer.light_state)
+        self.on_update_light_state(printer.light_state, True)
         is_change = False
         if self.state_label.GetLabel() != printer.gcode_state:
             self.state_label.SetForegroundColour(wx.Colour(printer.gcode_state_color))
@@ -171,6 +171,7 @@ class CardPanel(wx.Panel):
         """
         打开打印机LED灯光
         """
+        self.btn_led_switch.Disable()
         self._printer.open_light()
         self.on_update_light_state(True)
         event.Skip()
@@ -179,6 +180,7 @@ class CardPanel(wx.Panel):
         """
         关闭打印机LED灯光
         """
+        self.btn_led_switch.Disable()
         self._printer.close_light()
         self.on_update_light_state(False)
         event.Skip()
@@ -198,10 +200,11 @@ class CardPanel(wx.Panel):
         self._printer.close_sessions()
         event.Skip()
 
-    def on_update_light_state(self, state):
+    def on_update_light_state(self, state, enable_btn=False):
         """
         更新灯光状态
         """
+        if enable_btn: self.btn_led_switch.Enable()
         if state == self._is_led_open:
             # 灯光状态相同什么都不做
             return
