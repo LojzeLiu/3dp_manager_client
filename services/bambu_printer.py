@@ -114,3 +114,22 @@ class BambuPrinterService:
         if self._bambu_session is None:
             return False
         return self._bambu_session.light_state
+
+    def to_resume_printing(self):
+        """
+        开始打印
+        """
+        self._bambu_session.resume_printing()
+
+    def to_pause_printing(self):
+        """
+        暂停打印
+        """
+        self._bambu_session.pause_printing()
+
+    def to_stop_printing(self):
+        """
+        停止打印
+        """
+        self._bambu_session.stop_printing()
+

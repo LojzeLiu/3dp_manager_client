@@ -11,6 +11,7 @@ class IconManager:
         return cls._instance
 
     def get_icon(self, name, size=(32, 32)):
+        """获取图标"""
         if name not in self._cache:
             path = f"assets/icons/{name}.png"
             img = wx.Image(path, wx.BITMAP_TYPE_ANY)

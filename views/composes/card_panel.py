@@ -3,6 +3,7 @@ import wx
 import models
 import services
 import utils
+from views.composes import CustomMessageDialog
 
 _ = gettext.gettext
 
@@ -96,10 +97,11 @@ class CardPanel(wx.Panel):
         self.btn_led_switch.SetBackgroundColour(wx.Colour(top_btn_back_color))
 
         # 打印作业继续暂停操作按钮
+        self._btn_pla_suspend_state = 'pause-line'
         self.btn_pla_suspend = wx.Button(self.control_bar, size=btn_size, style=wx.BORDER_NONE)
-        self.btn_pla_suspend.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon('pause-line'))))
+        self.btn_pla_suspend.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon(self._btn_pla_suspend_state))))
         self.btn_pla_suspend.SetBackgroundColour(wx.Colour(top_btn_back_color))
-        # self.btn_pla_suspend.Disable()
+        self.btn_pla_suspend.Disable()
 
         # 打印作业停止按钮
         self.btn_stop = wx.Button(self.control_bar, size=btn_size, style=wx.BORDER_NONE)
@@ -120,6 +122,7 @@ class CardPanel(wx.Panel):
 
         # 绑定按钮事件
         self.Bind(wx.EVT_BUTTON, self.switch_light, self.btn_led_switch)
+        self.Bind(wx.EVT_BUTTON, self.on_switch_print, self.btn_pla_suspend)
 
         self.SetSizer(b_sizer3)
         self.Layout()
@@ -211,19 +214,48 @@ class CardPanel(wx.Panel):
         self.btn_led_switch.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon(btn_icon))))
 
     def on_update_ope_btn_state(self, gcode_state: str):
-        btn_icon = 'pause-line'
+        """
+        根据打印机状态，调整操作按钮
+        """
         if gcode_state == "打印中":
             # 当前机器正在打印中，按钮显示：暂停、停止
-            btn_icon = 'pause-line'
+            self._btn_pla_suspend_state = 'pause-line'
             self.btn_stop.Enable()
         elif gcode_state == "发生错误" or gcode_state == "暂停中":
             # 当前机器发生错误或者暂停中，按钮显示：开始、停止
-            btn_icon = 'play-line'
+            self._btn_pla_suspend_state = 'play-line'
             self.btn_stop.Enable()
         elif gcode_state == "空闲中" or gcode_state == "已完成":
             # 当前机器空闲中或者已完成，按钮显示：开始、停止（禁用）
-            btn_icon = 'play-line'
+            self._btn_pla_suspend_state = 'play-line'
             self.btn_stop.Disable()
         else:
             utils.logger.debug(f'{self._printer_conf.name}; unknow gcode state:{gcode_state}；')
-        self.btn_pla_suspend.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon(btn_icon))))
+        self.btn_pla_suspend.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon(self._btn_pla_suspend_state))))
+        self.btn_pla_suspend.Enable()
+
+    def on_switch_print(self, event):
+        if self._btn_pla_suspend_state == 'pause-line':
+            self._printer.to_pause_printing()
+        elif self._btn_pla_suspend_state == 'play-line':
+            self._printer.to_resume_printing()
+        self.btn_pla_suspend.Disable()
+        event.Skip()
+
+    def on_stop_print(self, event):
+        """
+        停止打印
+        """
+        confirm_dialog = CustomMessageDialog(
+            None,
+            f"确定停止本次任务吗？注意该操作无法撤销！",
+            "停止确认",
+            yes_btn_title="停 止", no_btn_title="取 消"
+        )
+        confirm_dialog.ShowModal()
+
+        # 根据用户选择执行操作
+        if confirm_dialog.result == wx.ID_YES:
+            self._printer.to_stop_printing()
+            self.btn_stop.Disable()
+        event.Skip()
