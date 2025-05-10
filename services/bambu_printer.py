@@ -4,9 +4,6 @@ from lib.bpm.bambuconfig import BambuConfig
 from lib.bpm.bambuprinter import BambuPrinter
 from .msg_handle import MsgHandle
 
-PrinterStateList = []
-
-
 class BambuPrinterService:
     """
     拓竹3D打印机功能封装
@@ -15,8 +12,7 @@ class BambuPrinterService:
     def __init__(self, bambu_config: models.BambuConfInfo):
         self._bambu_config = bambu_config
         self._bambu_session = None
-        self._printer_state = models.PrinterInfo()
-        self._printer_state.serial_number = bambu_config.serial_number
+        self._printer_state = models.PrinterInfo(bambu_config.name, bambu_config.serial_number)
 
         # 初始化消息相关服务
         send_url = utils.env_set.WECHAT_SEND_URL
@@ -28,14 +24,9 @@ class BambuPrinterService:
         self._bambu_session = BambuPrinter(curr_conf)
         self._bambu_session.on_update = self.to_update
         self._bambu_session.start_session()
-        printer_info = models.PrinterInfo()
-        printer_info.name = self._bambu_config.name
-        printer_info.serial_number = self._bambu_config.serial_number
-        PrinterStateList.append(printer_info)
 
     def restart_session(self, bambu_config):
         self._bambu_config = bambu_config
-        PrinterStateList.clear()
         self._quit_session()
 
         self.start_session()
@@ -133,3 +124,5 @@ class BambuPrinterService:
         """
         self._bambu_session.stop_printing()
 
+    def get_printer_info(self):
+        return self._printer_state

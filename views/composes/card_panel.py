@@ -4,6 +4,7 @@ import models
 import services
 import utils
 from .custom_message_dialog import CustomMessageDialog
+from .printer_detail_dialog import PrinterDetailDialog
 
 _ = gettext.gettext
 
@@ -27,12 +28,11 @@ class CardPanel(wx.Panel):
         b_sizer3 = wx.BoxSizer(wx.VERTICAL)
         g_sizer3 = wx.GridSizer(1, 2, 0, 0)
 
-        self.name_label = wx.StaticText(self, wx.ID_ANY, _(self.printer_name), wx.DefaultPosition, wx.DefaultSize,
-                                        0)
+        self.name_label = wx.StaticText(self, wx.ID_ANY, _(self.printer_name), wx.DefaultPosition, wx.DefaultSize, 0)
         self.name_label.Wrap(-1)
 
         self.name_label.SetFont(
-            wx.Font(22, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, "阿里妈妈方圆体 VF"))
+            wx.Font(22, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, models.About.font))
 
         g_sizer3.Add(self.name_label, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
 
@@ -123,6 +123,7 @@ class CardPanel(wx.Panel):
         # 绑定按钮事件
         self.Bind(wx.EVT_BUTTON, self.switch_light, self.btn_led_switch)
         self.Bind(wx.EVT_BUTTON, self.on_switch_print, self.btn_pla_suspend)
+        self.Bind(wx.EVT_LEFT_DOWN, self.on_show_detail_dialog)
 
         self.SetSizer(b_sizer3)
         self.Layout()
@@ -234,7 +235,8 @@ class CardPanel(wx.Panel):
             self.btn_stop.Disable()
         else:
             utils.logger.debug(f'{self._printer_conf.name}; unknow gcode state:{gcode_state}；')
-        self.btn_pla_suspend.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon(self._btn_pla_suspend_state))))
+        self.btn_pla_suspend.SetBitmap(
+            wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon(self._btn_pla_suspend_state))))
         self.btn_pla_suspend.Enable()
 
     def on_switch_print(self, event):
@@ -261,4 +263,14 @@ class CardPanel(wx.Panel):
         if confirm_dialog.result == wx.ID_YES:
             self._printer.to_stop_printing()
             self.btn_stop.Disable()
+        event.Skip()
+
+    def on_show_detail_dialog(self, event):
+        """点击卡片时显示详细信息的对话框"""
+        # 创建并显示详情对话框
+        detail_dialog = PrinterDetailDialog(self, self._printer_conf, self._printer.get_printer_info())
+        detail_dialog.ShowModal()
+
+        # 对话框关闭后恢复原来的更新回调
+        self._printer.set_state_update(self.update)
         event.Skip()

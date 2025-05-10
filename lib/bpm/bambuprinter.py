@@ -765,6 +765,7 @@ class BambuPrinter:
 
     def _on_message(self, message: str):
         # utils.logger.debug("_on_message", extra={"bambu_msg": message})
+        print(f'message:{message};')
 
         if "system" in message:
             system = message["system"]

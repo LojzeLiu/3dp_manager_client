@@ -6,7 +6,6 @@ import wx.grid as gridlib
 import models
 import utils
 from data import PrinterConfInfo
-from lib.bpm.bambutools import test_mqtt_connection
 from views.composes.custom_message_dialog import CustomMessageDialog
 
 
@@ -237,7 +236,7 @@ class PrinterGrid(wx.grid.Grid):
 
 class PrinterManagementDialog(wx.Dialog):
     def __init__(self, parent):
-        super().__init__(parent, title="打印机管理", size=(800, 600))
+        super().__init__(parent, title="打印机管理", size=wx.Size(800, 600))
         self.panel = wx.Panel(self)
         # self.Bind(wx.EVT_CLOSE, self.on_close)  # 绑定关闭事件
         self.Bind(wx.EVT_WINDOW_DESTROY, self.on_close)
@@ -252,8 +251,8 @@ class PrinterManagementDialog(wx.Dialog):
 
         # 顶部操作条
         self.toolbar = wx.Panel(self.panel)
-        self.add_btn = wx.Button(self.toolbar, label="添加打印机", size=(120, 30), style=wx.BORDER_NONE)
-        self.del_btn = wx.Button(self.toolbar, label="删除打印机", size=(120, 30), style=wx.BORDER_NONE)
+        self.add_btn = wx.Button(self.toolbar, label="添加打印机", size=wx.Size(120, 30), style=wx.BORDER_NONE)
+        self.del_btn = wx.Button(self.toolbar, label="删除打印机", size=wx.Size(120, 30), style=wx.BORDER_NONE)
 
         # 设置按钮背景颜色为 (237, 237, 237)
         bg_color = wx.Colour(237, 237, 237)

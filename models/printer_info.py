@@ -69,9 +69,9 @@ def convert_minutes(minutes):
 
 class PrinterInfo(object):
 
-    def __init__(self):
+    def __init__(self, name, serial_number):
         self.serial_number = ""
-        self.name = ""  # 打印机名称
+        self.name = name  # 打印机名称
         self.last_gcode_state = ""  # 上一次打印机状态
         self.gcode_state = ""  # 打印机状态
         self.gcode_state_color = "#06b025"
