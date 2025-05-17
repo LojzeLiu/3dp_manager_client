@@ -62,11 +62,11 @@ class CardPanel(wx.Panel):
         g_sizer4.Add(self.time_label, 0, wx.ALL | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
         b_sizer3.Add(g_sizer4, 1, wx.EXPAND, 5)
 
-        self.endtime_label = wx.StaticText(self, wx.ID_ANY, _(u"-- --"), wx.DefaultPosition, wx.DefaultSize, 0)
-        self.endtime_label.Wrap(-1)
-        self.endtime_label.SetFont(wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM,
-                                           False, models.About.font))
-        b_sizer3.Add(self.endtime_label, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
+        self.end_time_label = wx.StaticText(self, wx.ID_ANY, _(u"-- --"), wx.DefaultPosition, wx.DefaultSize, 0)
+        self.end_time_label.Wrap(-1)
+        self.end_time_label.SetFont(wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_MEDIUM,
+                                            False, models.About.font))
+        b_sizer3.Add(self.end_time_label, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
 
         self.print_file_name = wx.StaticText(self, wx.ID_ANY, _(u"--"), wx.DefaultPosition, wx.DefaultSize, 0)
         self.print_file_name.Wrap(-1)
@@ -146,8 +146,8 @@ class CardPanel(wx.Panel):
         if self.time_label.GetLabel() != printer.time_remaining:
             self.time_label.SetLabel(printer.time_remaining)
             is_change = True
-        if printer.end_time != "" and self.endtime_label.GetLabel() != printer.end_time:
-            self.endtime_label.SetLabel(printer.end_time)
+        if printer.end_time != "" and self.end_time_label.GetLabel() != printer.end_time:
+            self.end_time_label.SetLabel(printer.end_time)
             is_change = True
         if self.print_file_name.GetLabel() != printer.gcode_file:
             self.print_file_name.SetLabel(printer.gcode_file)

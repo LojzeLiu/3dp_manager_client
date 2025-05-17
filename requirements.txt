@@ -16,3 +16,6 @@ paho-mqtt~=2.1.0
 beautifulsoup4~=4.13.4
 webcolors~=24.11.1
 cx_Freeze~=8.1.0
+
+
+pillow~=11.2.1
