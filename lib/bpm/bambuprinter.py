@@ -27,86 +27,79 @@ import copy
 logger = logging.getLogger("bambuprinter")
 
 
-
-
 class BambuPrinter:
     """
-    `BambuPrinter` is the main class within `bambu-printer-manager` for interacting with and
-    managing your Bambu Lab 3d printer. It provides an object oriented abstraction layer 
-    between your project and the `mqtt` and `ftps` based mechanisms in place for communicating
-    with your printer.
+        `BambuPrinter` 是 `bambu-printer-manager` 中的主类，用于与您的 Bambu Lab 3D 打印机交互和管理。
+        它在您的项目和用于与打印机通信的 `mqtt` 和 `ftps` 机制之间提供了一个面向对象的抽象层。
     """
 
     def __init__(self, config: Optional[BambuConfig] = BambuConfig()):
         """
-        Sets up all internal storage attributes for `BambuPrinter` and bootstraps the
-        logging engine.
+        为 `BambuPrinter` 设置所有内部存储属性，并初始化日志引擎。
 
-        Parameters
+        参数
         ----------
         * config : Optional[BambuConfig] = BambuConfig()
 
-        Attributes
+        属性
         ----------
-        * _mqtt_client_thread: `PRIVATE` Thread handle for the mqtt client thread
-        * _watchdog_thread: `PRIVATE` Thread handle for the watchdog thread
-        * _internalExcepton: `READ ONLY` Returns the underlying `Exception` object if a failure occurred.
-        * _lastMessageTime: `READ ONLY` Epoch timestamp (in seconds) for the last time an update was received from the printer.
-        * _recent_update: `READ ONLY` Indicates that a message from the printer has been recently processed.
-        * _config: `READ/WRITE` `bambuconfig.BambuConfig` Configuration object associated with this instance.
-        * _state: `READ/WRITE` `bambutools.PrinterState` enum reports on health / status of the connection to the printer.
-        * _client: `READ ONLY` Provides access to the underlying `paho.mqtt.client` library.
-        * _on_update: `READ/WRITE` Callback used for pushing updates.  Includes a self reference to `BambuPrinter` as an argument.
-        * _bed_temp: `READ ONLY` The current printer bed temperature.
-        * _bed_temp_target: `READ/WRITE` The target bed temperature for the printer.
-        * _bed_temp_target_time: `READ ONLY` Epoch timetamp for when target bed temperature was last set.
-        * _tool_temp: `READ ONLY` The current printer tool temperature.
-        * _tool_temp_target: `READ/WRITE` The target tool temperature for the printer.
-        * _tool_temp_target_time: `READ ONLY` Epoch timetamp for when target tool temperature was last set.
-        * _chamber_temp `READ/WRITE` Not currently integrated but can be used as a stub for external chambers.
-        * _chamber_temp_target `READ/WRITE` Not currently integrated but can be used as a stub for external chambers.
-        * _chamber_temp_target_time: `READ ONLY` Epoch timetamp for when target chamber temperature was last set.
-        * _fan_gear `READ ONLY` Combined fan(s) reporting value.  Can be bit shifted for individual speeds.
-        * _heat_break_fan_speed `READ_ONLY` The heatbreak (heater block) fan speed in percent.
-        * _fan_speed `READ ONLY` The parts cooling fan speed in percent.
-        * _fan_speed_target `READ/WRITE` The parts cooling fan target speed in percent.
-        * _fan_speed_target_time: `READ ONLY` Epoch timetamp for when target fan speed was last set.
-        * _light_state `READ/WRITE` Boolean value indicating the state of the work light.
-        * _wifi_signal `READ ONLY` The current Wi-Fi signal strength of the printer.
-        * _speed_level `READ/WRITE` System Print Speed (1=Quiet, 2=Standard, 3=Sport, 4=Ludicrous).
-        * _gcode_state `READ ONLY` State reported for job status (FAILED/RUNNING/PAUSE/IDLE/FINISH).
-        * _gcode_file `READ ONLY` The name of the current or last printed gcode file.
-        * _3mf_file `READ ONLY` The name of the 3mf file currently being printed.
-        * _plate_num `READ ONLY` The selected plate # for the current 3mf file.
-        * _subtask_name `READ ONLY` The name of the active subtask.
-        * _print_type `READ ONLY` Not entirely sure.  Reports "idle" when no job is active.
-        * _percent_complete `READ ONLY` Percentage complete for the current active job.
-        * _time_remaining `READ ONLY` The number of estimated minutes remaining for the active job.
-        * _start_time `READ ONLY` The start time of the last (or current) active job in epoch minutes.
-        * _elapsed_time `READ ONLY` The number of elapsed minutes for the last (or current) active job.
-        * _layer_count `READ ONLY` The total number of layers for the current active job.
-        * _current_layer `READ ONLY` The current layer being printed for the current active job.
-        * _current_stage `READ ONLY` Maps to `bambutools.parseStage`.
-        * _current_stage_text `READ ONLY` Parsed `current_stage` value.
-        * _spools `READ ONLY` A Tuple of all loaded spools.  Can contain up to 5 `BambuSpool` objects.
-        * _target_spool `READ_ONLY` The spool # the printer is transitioning to (`0-3`=AMS, `254`=External, `255`=None).
-        * _active_spool `READ_ONLY` The spool # the printer is using right now (`0-3`=AMS, `254`=External, `255`=None).
-        * _spool_state `READ ONLY` Indicates whether the spool is Loaded, Loading, Unloaded, or Unloading.
-        * _ams_status `READ ONLY` Bitwise encoded status of the AMS (not currently used).
-        * _ams_exists `READ ONLY` Boolean value represents the detected presense of an AMS.
-        * _ams_rfid_status `READ ONLY` Bitwise encoded status of the AMS RFID reader (not currently used).
-        * _sdcard_contents `READ ONLY` `dict` (json) value of all files on the SDCard (requires `get_sdcard_contents` be called first).
-        * _sdcard_3mf_files `READ ONLY` `dict` (json) value of all `.3mf` files on the SDCard (requires `get_sdcard_3mf_files` be called first).
-        * _hms_data `READ ONLY` `dict` (json) value of any active hms codes with descriptions attached if they are known codes.
-        * _hms_message `READ ONLY` all hms_data `desc` fields concatinated into a single string for ease of use.
-        * _print_type `READ ONLY` can be `cloud` or `local`
-        * _skipped_objects `READ ONLY` array of objects that have been skipped / cancelled
+        * _mqtt_client_thread: `PRIVATE` MQTT 客户端线程的线程句柄
+        * _watchdog_thread: `PRIVATE` 看门狗线程的线程句柄
+        * _internalExcepton: `READ ONLY` 如果发生故障，返回底层的 `Exception` 对象。
+        * _lastMessageTime: `READ ONLY` 上次从打印机接收更新的时间戳（秒级）。
+        * _recent_update: `READ ONLY` 表示最近已处理来自打印机的消息。
+        * _config: `READ/WRITE` `bambuconfig.BambuConfig` 与此实例关联的配置对象。
+        * _state: `READ/WRITE` `bambutools.PrinterState` 枚举，报告与打印机连接的健康/状态。
+        * _client: `READ ONLY` 提供对底层 `paho.mqtt.client` 库的访问。
+        * _on_update: `READ/WRITE` 用于推送更新的回调函数，包含对 `BambuPrinter` 的引用作为参数。
+        * _bed_temp: `READ ONLY` 当前打印床温度。
+        * _bed_temp_target: `READ/WRITE` 打印床的目标温度。
+        * _bed_temp_target_time: `READ ONLY` 上次设置目标床温的时间戳。
+        * _tool_temp: `READ ONLY` 当前打印工具温度。
+        * _tool_temp_target: `READ/WRITE` 打印工具的目标温度。
+        * _tool_temp_target_time: `READ ONLY` 上次设置目标工具温度的时间戳。
+        * _chamber_temp `READ/WRITE` 当前未集成，可用作外部腔体的占位符。
+        * _chamber_temp_target `READ/WRITE` 当前未集成，可用作外部腔体的占位符。
+        * _chamber_temp_target_time: `READ ONLY` 上次设置目标腔体温度的时间戳。
+        * _fan_gear `READ ONLY` 组合风扇报告值，可通过位移获取单个风扇速度。
+        * _heat_break_fan_speed `READ_ONLY` 热端风扇速度（百分比）。
+        * _fan_speed `READ ONLY` 部件冷却风扇速度（百分比）。
+        * _fan_speed_target `READ/WRITE` 部件冷却风扇目标速度（百分比）。
+        * _fan_speed_target_time: `READ ONLY` 上次设置目标风扇速度的时间戳。
+        * _light_state `READ/WRITE` 工作灯状态的布尔值。
+        * _wifi_signal `READ ONLY` 打印机当前的 Wi-Fi 信号强度。
+        * _speed_level `READ/WRITE` 系统打印速度（1=静音，2=标准，3=运动，4=极速）。
+        * _gcode_state `READ ONLY` 作业状态报告（FAILED/RUNNING/PAUSE/IDLE/FINISH）。
+        * _gcode_file `READ ONLY` 当前或最近打印的 GCode 文件名。
+        * _3mf_file `READ ONLY` 当前正在打印的 3mf 文件名。
+        * _plate_num `READ ONLY` 当前 3mf 文件选择的板号。
+        * _subtask_name `READ ONLY` 当前子任务的名称。
+        * _print_type `READ ONLY` 不确定具体含义，无作业时报告 "idle"。
+        * _percent_complete `READ ONLY` 当前作业的完成百分比。
+        * _time_remaining `READ ONLY` 当前作业的剩余时间（分钟）。
+        * _start_time `READ ONLY` 上次（或当前）作业的开始时间（分钟级时间戳）。
+        * _elapsed_time `READ ONLY` 上次（或当前）作业的已用时间（分钟）。
+        * _layer_count `READ ONLY` 当前作业的总层数。
+        * _current_layer `READ ONLY` 当前正在打印的层数。
+        * _current_stage `READ ONLY` 映射到 `bambutools.parseStage`。
+        * _current_stage_text `READ ONLY` 解析后的 `current_stage` 值。
+        * _spools `READ ONLY` 所有已加载线材的元组，最多可包含 5 个 `BambuSpool` 对象。
+        * _target_spool `READ_ONLY` 打印机正在切换到的线材编号（`0-3`=AMS，`254`=外部，`255`=无）。
+        * _active_spool `READ_ONLY` 打印机当前使用的线材编号（`0-3`=AMS，`254`=外部，`255`=无）。
+        * _spool_state `READ ONLY` 表示线材状态（Loaded, Loading, Unloaded, Unloading）。
+        * _ams_status `READ ONLY` AMS 的位编码状态（当前未使用）。
+        * _ams_exists `READ ONLY` 布尔值，表示是否检测到 AMS。
+        * _ams_rfid_status `READ ONLY` AMS RFID 读取器的位编码状态（当前未使用）。
+        * _sdcard_contents `READ ONLY` `dict` (json) 值，表示 SD 卡上的所有文件（需先调用 `get_sdcard_contents`）。
+        * _sdcard_3mf_files `READ ONLY` `dict` (json) 值，表示 SD 卡上的所有 `.3mf` 文件（需先调用 `get_sdcard_3mf_files`）。
+        * _hms_data `READ ONLY` `dict` (json) 值，表示任何活动的 HMS 代码及其描述（如果已知）。
+        * _hms_message `READ ONLY` 所有 HMS 数据的 `desc` 字段合并为一个字符串，便于使用。
+        * _print_type `READ ONLY` 可以是 `cloud` 或 `local`。
+        * _skipped_objects `READ ONLY` 已跳过/取消的对象的数组。
 
-        The attributes (where appropriate) are included whenever the class is serialized
-        using its `toJson()` method.  
-        
-        When accessing the class level attributes, use their associated properties as the 
-        class level attributes are marked private.
+        在适当的情况下，这些属性会在通过 `toJson()` 方法序列化类时包含在内。
+
+        访问类级别属性时，请使用其关联的属性（property），因为类级别属性标记为私有。
         """
         # setup_logging()
 
@@ -301,10 +294,10 @@ class BambuPrinter:
 
         utils.logger.debug(
             f"to _mqtt_client_thread.join, name:{self.config.hostname}; self._mqtt_client_thread:{self._mqtt_client_thread};")
-        if self._mqtt_client_thread.is_alive(): self._mqtt_client_thread.join()
+        if self._mqtt_client_thread and self._mqtt_client_thread.is_alive(): self._mqtt_client_thread.join()
         utils.logger.debug(
             f"to _watchdog_thread.join, name:{self.config.hostname}; self._watchdog_thread:{self._watchdog_thread};")
-        if self._watchdog_thread.is_alive(): self._watchdog_thread.join()
+        if self._watchdog_thread and self._watchdog_thread.is_alive(): self._watchdog_thread.join()
         utils.logger.debug(f"all threads have terminated, name:{self.config.hostname}")
 
     def refresh(self):

@@ -1,6 +1,8 @@
 from lib.bpm.bambuprinter import BambuPrinter
 from datetime import datetime, timedelta
 
+from lib.bpm.bambuspool import BambuSpool
+
 
 def get_gcode_state_title(gcode_state):
     if gcode_state == "RUNNING":
@@ -88,6 +90,8 @@ class PrinterInfo(object):
         self.speed_level = ""  # 当前打印速度
         self.fan_speed = 0 # 零件冷却风扇的速度百分比
         self.fan_speed_target = 0 # 零件冷却风扇的目标速度百分比
+        self.ams_exists = False # 释放连接 AMS
+        self.spools:list[BambuSpool] = []
 
         self._on_update = None  # 完成进度
 
@@ -117,6 +121,7 @@ class PrinterInfo(object):
         if self.speed_level != printer.speed_level: return True
         if self.fan_speed != printer.fan_speed: return True
         if self.fan_speed_target != printer.fan_speed_target: return True
+        if self.ams_exists != printer.ams_exists: return True
         return False
 
     def update_printer_info(self, printer: BambuPrinter):
@@ -139,6 +144,8 @@ class PrinterInfo(object):
             self.set_speed_level_title(printer.speed_level)
             self.fan_speed = printer.fan_speed
             self.fan_speed_target = printer.fan_speed_target
+            self.ams_exists = printer.ams_exists
+            self.spools = printer.spools
             if self.on_update is not None:
                 self.on_update(self)
         self.last_gcode_state = printer.gcode_state

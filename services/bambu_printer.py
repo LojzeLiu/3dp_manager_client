@@ -47,7 +47,6 @@ class BambuPrinterService:
         if self._bambu_session is None:
             return
         self._bambu_session.quit()  # 停止打印机监控
-        print('to clear map')
         self._bambu_session = None
 
     def set_state_update(self, value):
