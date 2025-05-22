@@ -86,7 +86,7 @@ class PrinterDetailDialog(wx.Dialog):
         camera_sizer = wx.StaticBoxSizer(camera_box, wx.VERTICAL)
 
         # 创建摄像头画面显示区域
-        self.camera_panel = wx.Panel(self, size=wx.Size(640, 480))
+        self.camera_panel = wx.Panel(self, size=wx.Size(750, 480))
         self.camera_panel.SetBackgroundColour(wx.Colour(0, 0, 0))  # 黑色背景
         camera_sizer.Add(self.camera_panel, 0, wx.ALL | wx.CENTER, 5)
 
@@ -149,8 +149,8 @@ class PrinterDetailDialog(wx.Dialog):
                     # 在主线程中更新UI
                     wx.CallAfter(self.update_camera_ui, wx_image)
                 time.sleep(0.1)
-            except Exception as e:
-                utils.logger.error(f"摄像头更新错误: {e}")
+            except Exception:
+                # utils.logger.error(f"摄像头更新错误: {e}")
                 time.sleep(1)
 
         camera.stop()
@@ -170,9 +170,17 @@ class PrinterDetailDialog(wx.Dialog):
         dc.DrawBitmap(bitmap, 0, 0, True)
 
     def on_close(self, event):
-        """窗口关闭事件处理"""
-        event.Skip()
-        self.stop_camera()
+        """窗口关闭事件处理
+        直接关闭窗口，资源释放在后台异步处理，避免阻塞用户交互。
+        """
+        # 停止摄像头线程（异步，不等待线程结束）
+        self.camera_running = False
+        if self.camera_thread and self.camera_thread.is_alive():
+            # 不调用 join()，避免阻塞主线程
+            pass
+
+        # 直接销毁窗口
+        self.Destroy()
 
     def update_info(self, printer_info: models.PrinterInfo):
         """更新显示的打印机信息"""

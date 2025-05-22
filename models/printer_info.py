@@ -171,7 +171,8 @@ class PrinterInfo(object):
             self.speed_level = "运动"
         elif speed_level == 4:
             self.speed_level = "极速"
-        self.speed_level = "--"
+        else:
+            self.speed_level = "--"
 
 
 class BambuConfInfo:

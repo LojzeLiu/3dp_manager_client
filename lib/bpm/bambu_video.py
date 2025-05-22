@@ -61,7 +61,7 @@ class BambuCamera:
         return encoded_image
 
     def retriever(self):
-        print("Starting camera thread.")
+        # print("Starting camera thread.")
 
         auth_data = bytearray()
         connect_attempts = 0
@@ -94,14 +94,13 @@ class BambuCamera:
                 with socket.create_connection((self.__hostname, self.__port)) as sock:  # noqa
                     try:
                         connect_attempts += 1
-                        sslSock = ctx.wrap_socket(sock,
+                        ssl_sock = ctx.wrap_socket(sock,
                                                   server_hostname=self.__hostname)      # noqa
-                        utils.logger.info("Attempting to connect...")
-                        sslSock.write(auth_data)
+                        ssl_sock.write(auth_data)
                         img = None
                         payload_size = 0
 
-                        status = sslSock.getsockopt(socket.SOL_SOCKET,
+                        status = ssl_sock.getsockopt(socket.SOL_SOCKET,
                                                     socket.SO_ERROR)
                         if status != 0:
                             utils.logger.warning(f"Socket error: {status}")  # noqa  # pylint: disable=logger-fstring-interpolation
@@ -109,13 +108,13 @@ class BambuCamera:
                         utils.logger.warning(f"Error in socket: {e}")        # noqa  # pylint: disable=logger-fstring-interpolation
                         continue
 
-                    sslSock.setblocking(False)
-                    sslSock.settimeout(5.0)
+                    ssl_sock.setblocking(False)
+                    ssl_sock.settimeout(5.0)
 
                     while self.alive:
                         try:
-                            print("Reading chunk...")
-                            dr = sslSock.recv(read_chunk_size)
+                            # print("Reading chunk...")
+                            dr = ssl_sock.recv(read_chunk_size)
 
                         except ssl.SSLWantReadError:
                             time.sleep(1)
@@ -126,10 +125,10 @@ class BambuCamera:
                             time.sleep(1)
                             break
 
-                        print(f"Read chunk {len(dr)}")          # noqa  # pylint: disable=logger-fstring-interpolation
+                        # print(f"Read chunk {len(dr)}")          # noqa  # pylint: disable=logger-fstring-interpolation
 
                         if img is not None and len(dr) > 0:
-                            print("Appending to Image")
+                            # print("Appending to Image")
                             img += dr
                             if len(img) > payload_size:
                                 img = None
@@ -143,7 +142,7 @@ class BambuCamera:
                                 img = None
 
                         elif len(dr) == 16:
-                            print("Got header")
+                            # print("Got header")
                             connect_attempts = 0
                             img = bytearray()
                             payload_size = int.from_bytes(dr[0:3],
@@ -164,5 +163,5 @@ class BambuCamera:
                 continue
             finally:
                 time.sleep(5)
-                utils.logger.info("Reconnecting...")
+                # utils.logger.info("Reconnecting...")
                 continue
