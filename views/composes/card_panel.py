@@ -123,6 +123,7 @@ class CardPanel(wx.Panel):
         # 绑定按钮事件
         self.Bind(wx.EVT_BUTTON, self.switch_light, self.btn_led_switch)
         self.Bind(wx.EVT_BUTTON, self.on_switch_print, self.btn_pla_suspend)
+        self.Bind(wx.EVT_BUTTON, self.on_stop_print, self.btn_stop)
         self.Bind(wx.EVT_LEFT_DOWN, self.on_show_detail_dialog)
 
         self.SetSizer(b_sizer3)
@@ -240,11 +241,11 @@ class CardPanel(wx.Panel):
         self.btn_pla_suspend.Enable()
 
     def on_switch_print(self, event):
+        self.btn_pla_suspend.Disable()
         if self._btn_pla_suspend_state == 'pause-line':
             self._printer.to_pause_printing()
         elif self._btn_pla_suspend_state == 'play-line':
             self._printer.to_resume_printing()
-        self.btn_pla_suspend.Disable()
         event.Skip()
 
     def on_stop_print(self, event):
