@@ -113,7 +113,7 @@ class MsgHandle:
                 continue
             except Exception as e:
                 utils.logger.error(f"Error in worker processing message: {e}")
-        utils.logger.debug('worker exiting')
+        utils.logger.debug('MsgHandle worker exit')
 
     def run_worker(self):
         asyncio.set_event_loop(self.loop)  # 在新线程中设置事件循环

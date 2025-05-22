@@ -10,14 +10,18 @@ class BambuPrinterService:
     拓竹3D打印机功能封装
     """
 
-    def __init__(self, bambu_config: models.BambuConfInfo):
+    def __init__(self, bambu_config: models.BambuConfInfo, msg_handle = None):
         self._bambu_config = bambu_config
         self._bambu_session = None
         self._printer_state = models.PrinterInfo(bambu_config.name, bambu_config.serial_number)
 
         # 初始化消息相关服务
         send_url = utils.env_set.WECHAT_SEND_URL
-        self._msg_handle = MsgHandle(send_url)
+        if msg_handle is None:
+            self._msg_handle = MsgHandle(send_url)
+        else:
+            self._msg_handle = msg_handle
+
 
     def start_session(self):
         curr_conf = BambuConfig(self._bambu_config.hostname, self._bambu_config.access_code,

@@ -10,7 +10,7 @@ _ = gettext.gettext
 
 
 class CardPanel(wx.Panel):
-    def __init__(self, parent, printer_conf: models.BambuConfInfo, card_width=440):
+    def __init__(self, parent, printer_conf: models.BambuConfInfo, card_width=440, msg_handle=None):
         super(CardPanel, self).__init__(parent, wx.ID_ANY, wx.DefaultPosition, wx.Size(card_width, -1),
                                         wx.BORDER_SIMPLE | wx.TAB_TRAVERSAL)
         self.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOWTEXT))
@@ -20,7 +20,7 @@ class CardPanel(wx.Panel):
 
         self.printer_name = printer_conf.name
         self._printer_conf = printer_conf
-        self._printer = services.BambuPrinterService(self._printer_conf)
+        self._printer = services.BambuPrinterService(self._printer_conf, msg_handle)
         self._printer.set_state_update(self.update)
         self._printer.start_session()
         self._is_led_open = False

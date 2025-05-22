@@ -2,6 +2,7 @@ import wx
 import gettext
 import data
 import models
+import services
 import utils
 from views import composes
 from views.printer_manager import PrinterManagementDialog
@@ -98,6 +99,8 @@ class HomeFrame(wx.Frame):
         self.Bind(wx.EVT_KEY_DOWN, self.on_key_down)
         # 绑定窗口关闭事件
         self.Bind(wx.EVT_CLOSE, self.on_close)
+        send_url = utils.env_set.WECHAT_SEND_URL
+        self._msg_handle = services.MsgHandle(send_url)
 
         # 初始化打印监控服务
         self._on_start_printer()
@@ -137,7 +140,7 @@ class HomeFrame(wx.Frame):
     def init_cards(self):
         """Add a new card for the given printer."""
         for printer_conf in self._printer_conf_list:
-            card = composes.CardPanel(self.cards_container, printer_conf, card_width=self._card_width)
+            card = composes.CardPanel(self.cards_container, printer_conf, card_width=self._card_width, msg_handle=self._msg_handle)
             self.cards_sizer.Add(card, 0, wx.ALL | wx.EXPAND, 5)
             self._card_panels.append(card)
             self.cards_container.Layout()
