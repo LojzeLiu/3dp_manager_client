@@ -756,9 +756,10 @@ class BambuPrinter:
                                                  args=(self,))
         self._watchdog_thread.start()
 
-    def _on_message(self, message: str):
+    def _on_message(self, message):
         if "system" in message:
             system = message["system"]
+            print(f'message system:{system};')
 
         elif "print" in message:
             status = message["print"]

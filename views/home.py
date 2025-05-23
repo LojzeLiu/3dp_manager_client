@@ -6,6 +6,7 @@ import services
 import utils
 from views import composes
 from views.printer_manager import PrinterManagementDialog
+from views.setting_dialog import SettingsDialog
 
 _ = gettext.gettext
 
@@ -61,6 +62,11 @@ class HomeFrame(wx.Frame):
         self.top_btn_printer_manager.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon('printer_manager'))))
         self.top_btn_printer_manager.SetBackgroundColour(wx.Colour(top_btn_back_color))
 
+        # 设置按钮
+        self.top_btn_setting = wx.Button(self.control_bar, size=btn_size, style=wx.BORDER_NONE)
+        self.top_btn_setting.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon('setting'))))
+        self.top_btn_setting.SetBackgroundColour(wx.Colour(top_btn_back_color))
+
         # 将按钮添加到控制条
         control_bar_sizer.Add(self.top_btn_led_switch, 0, wx.ALL, 5)
         control_bar_sizer.Add(self.top_btn_full_screen, 0, wx.ALL, 5)
@@ -70,6 +76,7 @@ class HomeFrame(wx.Frame):
         # 添加弹性空间使按钮靠左
         control_bar_sizer.AddStretchSpacer(1)
         self.control_bar.SetSizer(control_bar_sizer)
+        control_bar_sizer.Add(self.top_btn_setting, 0, wx.ALL, 5)
 
         # 将控制条添加到主布局
         main_sizer.Add(self.control_bar, 0, wx.EXPAND | wx.ALL, 0)
@@ -93,7 +100,7 @@ class HomeFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.on_full_screen, self.top_btn_full_screen)
         self.Bind(wx.EVT_BUTTON, self.on_switch_voice_info, self.top_btn_voice_info)
         self.Bind(wx.EVT_BUTTON, self.on_printer_management, self.top_btn_printer_manager)
-        # self.Bind(wx.EVT_BUTTON, self.on_help, self.btn_help)
+        self.Bind(wx.EVT_BUTTON, self.on_show_setting_dialog, self.top_btn_setting)
 
         self.Bind(wx.EVT_SIZE, self.on_resize)
         self.Bind(wx.EVT_KEY_DOWN, self.on_key_down)
@@ -140,7 +147,8 @@ class HomeFrame(wx.Frame):
     def init_cards(self):
         """Add a new card for the given printer."""
         for printer_conf in self._printer_conf_list:
-            card = composes.CardPanel(self.cards_container, printer_conf, card_width=self._card_width, msg_handle=self._msg_handle)
+            card = composes.CardPanel(self.cards_container, printer_conf, card_width=self._card_width,
+                                      msg_handle=self._msg_handle)
             self.cards_sizer.Add(card, 0, wx.ALL | wx.EXPAND, 5)
             self._card_panels.append(card)
             self.cards_container.Layout()
@@ -221,3 +229,9 @@ class HomeFrame(wx.Frame):
             btn_icon = 'volume-mute-fill'
         self.top_btn_voice_info.SetBitmap(wx.BitmapBundle(wx.Bitmap(utils.icon_mgr.get_icon(btn_icon))))
         event.Skip()  # 处理其他键的事件
+
+    def on_show_setting_dialog(self, event):
+        """显示设置窗口"""
+        settings_dialog = SettingsDialog(self)
+        settings_dialog.ShowModal()
+        event.Skip()
