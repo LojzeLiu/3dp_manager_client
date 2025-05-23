@@ -46,6 +46,21 @@ msi_options = {
                 None,  # 图标路径（可选）
                 None,  # 图标索引（可选）
                 None,  # 显示方式（可选）
+            ),
+            # 新增：开始菜单快捷方式
+            (
+                "StartMenuShortcut",  # 快捷方式类型
+                "ProgramMenuFolder",  # 快捷方式位置（开始菜单）
+                models.About.app_name,  # 快捷方式名称
+                "TARGETDIR",  # 目标目录
+                "[TARGETDIR]%s.exe" % models.About.app_name,  # 目标路径
+                None,  # 工作目录（可选）
+                None,  # 参数（可选）
+                None,  # 描述（可选）
+                None,  # 热键（可选）
+                None,  # 图标路径（可选）
+                None,  # 图标索引（可选）
+                None,  # 显示方式（可选）
             )
         ]
     }
