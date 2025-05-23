@@ -16,7 +16,7 @@ class BambuPrinterService:
         self._printer_state = models.PrinterInfo(bambu_config.name, bambu_config.serial_number)
 
         # 初始化消息相关服务
-        send_url = utils.env_set.WECHAT_SEND_URL
+        send_url = utils.env_set.wechat_send_url
         if msg_handle is None:
             self._msg_handle = MsgHandle(send_url)
         else:

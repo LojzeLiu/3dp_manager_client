@@ -34,6 +34,9 @@ class MsgHandle:
         self._wc_send_url = wc_send_url
         self._open_voice = True
 
+    def update_conf(self, wc_send_url:str):
+        self._wc_send_url = wc_send_url
+
     def switch_voice(self) -> bool:
         """开关语音通知"""
         self._open_voice = not self._open_voice
@@ -151,6 +154,7 @@ class MsgHandle:
         if res.status_code != 200:
             utils.logger.debug(f'send msg failed, state code:{res.status_code}, text:{res.text}')
         # print('res:', res.text)
+        return res.status_code
 
     def stop(self):
         utils.logger.debug(f'to stop')

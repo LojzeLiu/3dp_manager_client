@@ -106,7 +106,7 @@ class HomeFrame(wx.Frame):
         self.Bind(wx.EVT_KEY_DOWN, self.on_key_down)
         # 绑定窗口关闭事件
         self.Bind(wx.EVT_CLOSE, self.on_close)
-        send_url = utils.env_set.WECHAT_SEND_URL
+        send_url = utils.env_set.wechat_send_url
         self._msg_handle = services.MsgHandle(send_url)
 
         # 初始化打印监控服务
@@ -232,6 +232,6 @@ class HomeFrame(wx.Frame):
 
     def on_show_setting_dialog(self, event):
         """显示设置窗口"""
-        settings_dialog = SettingsDialog(self)
+        settings_dialog = SettingsDialog(self, self._msg_handle)
         settings_dialog.ShowModal()
         event.Skip()
