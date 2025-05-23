@@ -7,13 +7,14 @@ import models
 class SettingsDialog(wx.Dialog):
     def __init__(self, parent):
         wx.Dialog.__init__(self, parent, title="软件设置", size=wx.Size(800, 600),
-                          style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+                           style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
 
         # 主布局：左侧菜单 + 右侧内容面板
         main_sizer = wx.BoxSizer(wx.HORIZONTAL)
 
         # ========== 左侧菜单 ==========
-        self.menu_panel = wx.Panel(self, style=wx.BORDER_SIMPLE)
+        # 移除菜单面板的边框（原 style=wx.BORDER_SIMPLE）
+        self.menu_panel = wx.Panel(self)
         menu_sizer = wx.BoxSizer(wx.VERTICAL)
 
         # 菜单项按钮
@@ -34,10 +35,13 @@ class SettingsDialog(wx.Dialog):
         menu_sizer.AddStretchSpacer()  # 填充剩余空间
 
         self.menu_panel.SetSizer(menu_sizer)
-        main_sizer.Add(self.menu_panel, 0, wx.EXPAND)
+        # 在左侧菜单和右侧内容面板之间添加一条垂直分割线
+        main_sizer.Add(self.menu_panel, 0, wx.EXPAND | wx.RIGHT, border=1)
+        main_sizer.Add(wx.StaticLine(self, style=wx.LI_VERTICAL), 0, wx.EXPAND)
 
         # ========== 右侧内容面板 ==========
-        self.content_panel = wx.Panel(self, style=wx.BORDER_SIMPLE)
+        # 移除内容面板的边框（原 style=wx.BORDER_SIMPLE）
+        self.content_panel = wx.Panel(self)
         self.content_sizer = wx.BoxSizer(wx.VERTICAL)
         self.content_panel.SetSizer(self.content_sizer)
         main_sizer.Add(self.content_panel, 1, wx.EXPAND)
@@ -72,7 +76,7 @@ class SettingsDialog(wx.Dialog):
         sizer = wx.BoxSizer(wx.VERTICAL)
 
         # 添加一个提示文本（实际开发时可替换为具体设置项）
-        tip_text = wx.StaticText(self.current_page, label="常规设置内容待添加")
+        tip_text = wx.StaticText(self.current_page, label="开发中...")
         tip_text.SetFont(wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
         sizer.Add(tip_text, 0, wx.ALL, 20)
 
