@@ -176,7 +176,7 @@ class SettingsDialog(wx.Dialog):
         qr_title.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
 
         # 加载图片并直接缩放到 200x200 像素
-        qr_image = wx.Image('assets/icons/author_qr.png', wx.BITMAP_TYPE_PNG)
+        qr_image = wx.Image(f'{utils.env_set.base_dir}/assets/icons/author_qr.png', wx.BITMAP_TYPE_PNG)
         qr_image = qr_image.Scale(200, 200, wx.IMAGE_QUALITY_HIGH)
         qr_bitmap = wx.StaticBitmap(self.current_page, bitmap=wx.BitmapBundle.FromBitmap(wx.Bitmap(qr_image)))
 

@@ -218,9 +218,10 @@ class HomeFrame(wx.Frame):
 
     def on_switch_voice_info(self, event):
         """开关语音通知"""
-        switch_state = True
-        for card_panel in self._card_panels:
-            switch_state = card_panel.to_switch_voice_info(event)
+        switch_state = self._msg_handle.switch_voice()
+        # for card_panel in self._card_panels:
+        #     switch_state = card_panel.to_switch_voice_info(event)
+
         if switch_state:
             # 执行完后，是开启状态
             btn_icon = 'volume-up-fill'

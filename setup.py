@@ -8,7 +8,7 @@ build_options = dict(
     include_files=[
         "resources",
         "assets",
-        ".env",
+        ".env.example",
         ("lib", "lib"),
     ],
     # 包含 wxPython 的 DLL 文件（根据实际路径调整）
@@ -29,7 +29,7 @@ exe = Executable(
 msi_options = {
     "upgrade_code": "{c7b50a84-8efe-42df-96c2-9dd6cd42f822}",  # 替换为唯一的升级代码（GUID格式）
     "add_to_path": False,  # 是否将程序添加到系统 PATH
-    "initial_target_dir": r"C:\3DPrinterFarmManager",
+    "initial_target_dir": models.About.default_install_dif,
     # 修正快捷方式配置
     "data": {
         "Shortcut": [

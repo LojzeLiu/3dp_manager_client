@@ -187,13 +187,13 @@ class CardPanel(wx.Panel):
         self.on_update_light_state(False)
         event.Skip()
 
-    def to_switch_voice_info(self, event):
-        """
-        改变打印机语音通知状态
-        """
-        state = self._printer.switch_voice_info()
-        event.Skip()
-        return state
+    # def to_switch_voice_info(self, event):
+    #     """
+    #     改变打印机语音通知状态
+    #     """
+    #     state = self._printer.switch_voice_info()
+    #     event.Skip()
+    #     return state
 
     def to_close_session(self, event):
         """

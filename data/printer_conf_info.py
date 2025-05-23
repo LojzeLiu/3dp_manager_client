@@ -5,7 +5,7 @@ import utils
 
 
 class PrinterConfInfo(object):
-    def __init__(self, db_name="bambu.db"):
+    def __init__(self, db_name=f"{utils.env_set.base_dir}/bambu.db"):
         self.conn = sqlite3.connect(db_name)
         self.cursor = self.conn.cursor()
         self.setup_table()
