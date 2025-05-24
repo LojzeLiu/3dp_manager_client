@@ -1,72 +1,122 @@
+# 3D打印机集群管理系统
+> 一款开源免费的3D打印机集群管理软件，使用Python开发。在打印机处于局域网模式或者农场模式下，任具备强语音提醒、远程提醒、统一操作等功能，为你的农场降本增效。
+# 功能亮点
+1. 多台拓竹打印机统一监看、提醒、管理（简单管理）；
+2. 兼容**拓竹农场管家**，扩展**拓竹农场管家**功能；
+3. 具备语音和远程提醒功能，在打印机意外停止时，可第一时间干预处理，减少暂停时间；
+4. 集群控制打印机灯光，下班或无人时减少电能消耗；
+5. 中文界面，操作友好；
+6. 开源免费，一件安装即可使用。
 
+## 未来功能
+1. 远程监看、管理、安排生产；
+2. 接入更多品牌、型号；
+3. 打印机务管理；
+4. 多语言支持；
+5. 打印机扩展设备接入统一管理；
+6. 打印机分组管理。
+
+# 兼容设备（已测试）
+1. 拓竹 A1；
+2. 拓竹 A1 Mini；
+3. 拓竹 P1S。
+
+# 使用教程
+## 系统与网络要求
+1. Windows10或更高版本操作系统；
+2. 使用X86指令集64位处理器的电脑或平板；
+3. 打印机使用2.4G WIFI接入局域网；
+4. 打印机、**3D打印机集群管理系统**、**拓竹农场管家**需要部署在同一个局域网中，或二者可基于IP地址通信（如同路由器下的不同子网）；
+5. **3D打印机集群管理系统**、**拓竹农场管家客户端**需要具备公网访问能力。
+## 打印机固件要求
+1. Bambu Lab P1P/P1S: 请更新至V01.07.00.00 或之后的版本 
+2. Bambu lab A1/A1mini: 请更新至V01.04.00.00 或之后的版本
+## 安装**拓竹农场管家**（非必须）
+> **拓竹农场管家** 安装教程请[点击这里查看](https://wiki.bambulab.com/zh/software/bambu-farm-manager)，并按照教程完成安装。建议将**拓竹农场管家**和**3D打印机集群管理系统**安装在一台电脑上。
+## 安装 **3D打印机集群管理系统**
+1. 点击这里下载最新版本；
+2. 双击启动安装程序，按提示选择安装路径（路径不能包含英文）；
+3. 接下来一直点击下一步即可完成安装。
+
+## 设置远程通知
+> 目前远程通知使用的是企业微信群的方式通知，这是目前我能找到成本最低的（金钱成本为0），通知效率较高的一种方法。如果你有更好的方法，可以[点击这里]()提交你的建议。
+
+1. 下载注册企业微信（无需付费认证）；
+2. 创建群聊，至少选择2名要需要接收通知的成员（必须是内部群）；
+3. 点击右上角三个点，进入群管理；
+4. 点击**群机器人**；
+5. 点击**添加机器人**；
+6. 点击右上角新建；
+7. 输入机器人名字，点击添加；
+8. 点击复制 **Webhook地址**；
+9. 在 **3D打印机集群管理系统** 主窗口，点击右上角设置图标；
+10. 在弹出窗口点击 **通知设置**，在企业微信通知URL输入栏，粘贴刚刚复制的**Webhook地址**；
+11. 点击测试通知，查看企业微信群消息，如果收到如下提示，则代表配置成功；
+12. 点击保存设置，关闭软件设置窗口即可。
+
+## 添加打印机
+1. 点击下图所示图标，打开打印机管理窗口；
+2. 点击下图所示按钮，添加打印机；
+3. 输入名称（名称建议可以清晰区分每一台打印机）、IP 地址、访问码、机器码，点击OK；
+4. IP 地址和机器码可以从**拓竹农场管家客户端**复制粘贴；
+5. 访问码需从打印机获取，方法见获取访问码一章；
+6. 完成添加打印机后，点击打印机管理窗口最下端的关闭按钮，关闭打印机管理窗口后，程序会自动加载打印机，加载过程较慢（打印机越多，越慢）；
+
+## 删除打印机
+1. 点击下图所示图标，打开打印机管理窗口；
+2. 右键选择要删除的打印机，点击删除选项，即可删除打印机。
+
+## 修改打印机信息
+1. 点击下图所示图标，打开打印机管理窗口；
+2. 右键选择要修改的打印机，点击修改选项；
+3. 在弹出窗口修改信息，完成修改后，点击ok按钮即可保存修改信息。
+
+## 查看打印机详情
+1. 点击要查看的打印机标签（点击空白处），即可弹出详情窗口；
+2. 此窗口可以查看：打印机序列号、IP地址、WiFi强度、设备状态、耗材信息、运行实况、摄像头画面；
+3. 下滑窗口，可查看摄像头内容。
+
+## 更多便捷功能
+1. 点击顶部操作条的灯光图标，可以统一控制LED灯光开关；
+2. 点击打印机标签处的灯光图标，可以单独控制指定打印机的LED灯光；
+3. 点击下图所示图标，可以切换软件全屏状态；
+4. 点击下图所示图标，可以关闭语音通知；
+
+## 获取打印机访问码
+### P1S
+
+### A1 & A1 Mini
+
+# 相关逻辑说明
+## 语音通知开关
+1. 当语音通知开启后，程序接收到一个打印机事件（需要通知的），会阻塞等待用户操作，在此期间，语音会滚动播放。直到用户操作后，才会处理下一个事件。该模式适合设备旁有人时开启；
+2. 当语音通知关闭后，程序接收到一个打印机事件（需要通知的），不会阻塞等待，会直接发生远程通知，并且不会有语音播放，并立即处理下一个事件。该模式适合设备旁无人时关闭语音通知。
+## 灯光开关
+1. 当点击顶部统一灯光开关时，程序会依次向每台打印机发生关灯指令；
+2. 每台设备标签上的灯光控制按钮，会在接收到打印机的灯光状态切换指令后，切换灯光图标到对应状态，在此期间，按钮是禁止点击的；
+3. 单独操作指定设备的灯光，逻辑和上面所说的相似，所以图标状态切换会有一定的延迟。
+
+# 关于开发
+## 环境需求
+1. python : 3.12;
+2. 其他依赖见：requirements.txt
+## 安装依赖
+```shell
+cd 3dp_manager_client
+pip install -r requirements.txt 
+```
+## 测试运行
+```shell
+python main.py
+```
 ## 打包构建
 ```shell
-python setup.py build
+python setup.py bdist_msi
 ```
 
+# 问题提交
 
-## 相关参数记录
+请[点击这里]()，提交你的问题。
 
-### BambuPrinter 打印机信息解释
-
-```aiignore
-----------
-* _mqtt_client_thread: `PRIVATE` MQTT 客户端线程的线程句柄（私有）
-* _watchdog_thread: `PRIVATE` 看门狗线程的线程句柄（私有）
-* _internalExcepton: `READ ONLY` 如果发生故障，返回底层的 `Exception` 对象（只读）
-* _lastMessageTime: `READ ONLY` 从打印机收到更新的最后时间的时间戳（秒）（只读）
-* _recent_update: `READ ONLY` 表示最近已处理来自打印机的消息（只读）
-* _config: `READ/WRITE` 与此实例关联的 `bambuconfig.BambuConfig` 配置对象（可读写）
-* _state: `READ/WRITE` `bambutools.PrinterState` 枚举，报告与打印机的连接健康状况/状态（可读写）
-* _client: `READ ONLY` 提供对底层 `paho.mqtt.client` 库的访问（只读）
-* _on_update: `READ/WRITE` 用于推送更新的回调。包括对 `BambuPrinter` 的自引用作为参数（可读写）
-* _bed_temp: `READ ONLY` 当前打印机床温度（只读）
-* _bed_temp_target: `READ/WRITE` 打印机的目标床温度（可读写）
-* _bed_temp_target_time: `READ ONLY` 上次设置目标床温度的时间戳（只读）
-* _tool_temp: `READ ONLY` 当前打印机工具温度（只读）
-* _tool_temp_target: `READ/WRITE` 打印机的目标工具温度（可读写）
-* _tool_temp_target_time: `READ ONLY` 上次设置目标工具温度的时间戳（只读）
-* _chamber_temp `READ/WRITE` 当前未集成，但可用作外部室的占位符（可读写）
-* _chamber_temp_target `READ/WRITE` 当前未集成，但可用作外部室目标温度的占位符（可读写）
-* _chamber_temp_target_time: `READ ONLY` 上次设置目标室温度的时间戳（只读）
-* _fan_gear `READ ONLY` 组合风扇的报告值。可通过位移操作获得各个风扇的速度（只读）
-* _heat_break_fan_speed `READ_ONLY` 热断风扇（加热块风扇）的速度百分比（只读）
-* _fan_speed `READ ONLY` 零件冷却风扇的速度百分比（只读）
-* _fan_speed_target `READ/WRITE` 零件冷却风扇的目标速度百分比（可读写）
-* _fan_speed_target_time: `READ ONLY` 上次设置目标风扇速度的时间戳（只读）
-* _light_state `READ/WRITE` 表示工作灯状态的布尔值（可读写）
-* _wifi_signal `READ ONLY` 打印机当前的 Wi-Fi 信号强度（只读）
-* _speed_level `READ/WRITE` 系统打印速度（1=静音，2=标准，3=运动，4=极速）（可读写）
-* _gcode_state `READ ONLY` 报告工作状态（失败/运行/暂停/空闲/完成）的状态（只读）
-* _gcode_file `READ ONLY` 当前或最后打印的 gcode 文件名（只读）
-* _3mf_file `READ ONLY` 当前正在打印的 3mf 文件名（只读）
-* _plate_num `READ ONLY` 当前 3mf 文件选定的平板号（只读）
-* _subtask_name `READ ONLY` 活动子任务的名称（只读）
-* _print_type `READ ONLY` 不完全确定。在没有活动作业时报告“空闲”（只读）
-* _percent_complete `READ ONLY` 当前活动作业的完成百分比（只读）
-* _time_remaining `READ ONLY` 活动作业预估剩余分钟数（只读）
-* _start_time `READ ONLY` 最后一个（或当前）活动作业的开始时间（分钟时间戳）（只读）
-* _elapsed_time `READ ONLY` 最后一个（或当前）活动作业的已过时间（分钟）（只读）
-* _layer_count `READ ONLY` 当前活动作业的总层数（只读）
-* _current_layer `READ ONLY` 当前活动作业正在打印的当前层（只读）
-* _current_stage `READ ONLY` 映射到 `bambutools.parseStage`（只读）
-* _current_stage_text `READ ONLY` 解析 `current_stage` 值（只读）
-* _spools `READ ONLY` 已加载的所有线轴的元组。可包含多达 5 个 `BambuSpool` 对象（只读）
-* _target_spool `READ_ONLY` 打印机正在转换到的线轴号（`0-3`=AMS, `254`=外部, `255`=无）（只读）
-* _active_spool `READ_ONLY` 打印机当前使用的线轴号（`0-3`=AMS, `254`=外部, `255`=无）（只读）
-* _spool_state `READ ONLY` 表示线轴是已装载、装载中、未装载还是卸载中（只读）
-* _ams_status `READ ONLY` AMS 的位编码状态（当前未使用）（只读）
-* _ams_exists `READ ONLY` 表示检测到 AMS 的布尔值（只读）
-* _ams_rfid_status `READ ONLY` AMS RFID 读取器的位编码状态（当前未使用）（只读）
-* _sdcard_contents `READ ONLY` SDCard 上所有文件的 `dict`（json）值（需要首先调用 `get_sdcard_contents`）（只读）
-* _sdcard_3mf_files `READ ONLY` SDCard 上所有 `.3mf` 文件的 `dict`（json）值（需要首先调用 `get_sdcard_3mf_files`）（只读）
-* _hms_data `READ ONLY` 任何活动 hms 代码的 `dict`（json）值，如果是已知代码，则附带描述（只读）
-* _hms_message `READ ONLY` 所有 hms_data `desc` 字段连接成的单个字符串，便于使用（只读）
-* _print_type `READ ONLY` 可为 `cloud` 或 `local`（只读）
-* _skipped_objects `READ ONLY` 已被跳过/取消的对象数组（只读）
-
-```
-
-## 参考资料
-
-[bambu-printer-manager](https://synman.github.io/bambu-printer-manager/)
+# 使用开源项目
+1. [bambu-printer-manager](https://github.com/synman/bambu-printer-manager)
