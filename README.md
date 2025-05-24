@@ -53,9 +53,12 @@
 
 5. 点击**添加机器人**；
 
-
+<a href="https://sm.ms/image/fIjGT7BJEbSiVRK" target="_blank"><img height="600" width="300" src="https://s2.loli.net/2025/05/24/fIjGT7BJEbSiVRK.jpg" ></a>
 
 6. 点击右上角新建；
+
+<a href="https://sm.ms/image/ZEr8xiOWoV34fRm" target="_blank"><img height="600" width="300"  src="https://s2.loli.net/2025/05/24/ZEr8xiOWoV34fRm.jpg" ></a>
+
 7. 输入机器人名字，点击添加；
 
 <a href="https://sm.ms/image/ZLDPK5CT2S3gwAx" target="_blank"><img height="600" width="300" src="https://s2.loli.net/2025/05/24/ZLDPK5CT2S3gwAx.jpg" ></a>
@@ -65,26 +68,61 @@
 <a href="https://sm.ms/image/1uahfjSkp6sMXOC" target="_blank"><img height="600" width="300" src="https://s2.loli.net/2025/05/24/1uahfjSkp6sMXOC.jpg" ></a>
 
 9. 在 **3D打印机集群管理系统** 主窗口，点击右上角设置图标；
+
+![image.png](https://s2.loli.net/2025/05/24/TYUkvsL1gO2icDn.png)
+
 10. 在弹出窗口点击 **通知设置**，在企业微信通知URL输入栏，粘贴刚刚复制的**Webhook地址**；
+
+![image.png](https://s2.loli.net/2025/05/24/c4PEN2YgzCxhr5w.png)
+
 11. 点击测试通知，查看企业微信群消息，如果收到如下提示，则代表配置成功；
+
+![image.png](https://s2.loli.net/2025/05/24/MRWVw2Gxj9mAQPK.png)
+
 12. 点击保存设置，关闭软件设置窗口即可。
 
 ## 添加打印机
 1. 点击下图所示图标，打开打印机管理窗口；
+
+![image.png](https://s2.loli.net/2025/05/24/4GKU9Zy2mADxeuB.png)
+
 2. 点击下图所示按钮，添加打印机；
+
+![image.png](https://s2.loli.net/2025/05/24/q2hEArnYT5cDCp4.png)
 3. 输入名称（名称建议可以清晰区分每一台打印机）、IP 地址、访问码、机器码，点击OK；
+
+![image.png](https://s2.loli.net/2025/05/24/7YzNpkAfBcHMXPj.png)
+
 4. IP 地址和机器码可以从**拓竹农场管家客户端**复制粘贴；
+
+![image.png](https://s2.loli.net/2025/05/24/KgMjXyO4qPSG8ch.png)
+
+
+![image.png](https://s2.loli.net/2025/05/24/7vB4o3t26qi5W1R.png)
+
+
 5. 访问码需从打印机获取，方法见获取访问码一章；
 6. 完成添加打印机后，点击打印机管理窗口最下端的关闭按钮，关闭打印机管理窗口后，程序会自动加载打印机，加载过程较慢（打印机越多，越慢）；
 
 ## 删除打印机
 1. 点击下图所示图标，打开打印机管理窗口；
+![image.png](https://s2.loli.net/2025/05/24/4GKU9Zy2mADxeuB.png)
 2. 右键选择要删除的打印机，点击删除选项，即可删除打印机。
+
+![image.png](https://s2.loli.net/2025/05/24/O9DqYu23mEz5UXx.png)
 
 ## 修改打印机信息
 1. 点击下图所示图标，打开打印机管理窗口；
+
+![image.png](https://s2.loli.net/2025/05/24/4GKU9Zy2mADxeuB.png)
+
 2. 右键选择要修改的打印机，点击修改选项；
+
+![image.png](https://s2.loli.net/2025/05/24/X6bpSPjgAlm4wU9.png)
+
 3. 在弹出窗口修改信息，完成修改后，点击ok按钮即可保存修改信息。
+
+![image.png](https://s2.loli.net/2025/05/24/fDT8d3empbJQqtH.png)
 
 ## 查看打印机详情
 1. 点击要查看的打印机标签（点击空白处），即可弹出详情窗口；
@@ -98,6 +136,7 @@
 2. 点击打印机标签处的灯光图标，可以单独控制指定打印机的LED灯光；
 3. 点击下图所示图标，可以切换软件全屏状态；
 4. 点击下图所示图标，可以关闭语音通知；
+![image.png](https://s2.loli.net/2025/05/24/1e8vhK9NaLHAcPQ.png)
 
 ## 获取打印机访问码
 ### P1S
