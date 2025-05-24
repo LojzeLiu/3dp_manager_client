@@ -26,7 +26,7 @@
 1. Windows10或更高版本操作系统；
 2. 使用X86指令集64位处理器的电脑或平板；
 3. 打印机使用2.4G WIFI接入局域网；
-4. 打印机、**3D打印机集群管理系统**、**拓竹农场管家**需要部署在同一个局域网中，或二者可基于IP地址通信（如同路由器下的不同子网）；
+4. 打印机、**3D打印机集群管理系统**、**拓竹农场管家**需要部署在同一个局域网中，或三者可基于IP地址通信（如同路由器下的不同子网）；
 5. **3D打印机集群管理系统**、**拓竹农场管家客户端**需要具备公网访问能力。
 ## 打印机固件要求
 1. Bambu Lab P1P/P1S: 请更新至V01.07.00.00 或之后的版本 
@@ -39,7 +39,7 @@
 3. 接下来一直点击下一步即可完成安装。
 
 ## 设置远程通知
-> 目前远程通知使用的是企业微信群的方式通知，这是目前我能找到成本最低的（金钱成本为0），通知效率较高的一种方法。如果你有更好的方法，可以[点击这里]()提交你的建议。
+> 目前远程通知使用的是企业微信群的方式通知，这是目前我能找到成本最低的（金钱成本为0），通知效率较高的一种方法。如果你有更好的方法，可以[点击这里](https://gitee.com/lojzeliu/3dp_manager_client/issues)提交你的建议。
 
 1. 下载注册企业微信（无需付费认证）；
 2. 创建群聊，至少选择2名要需要接收通知的成员（必须是内部群）；
@@ -78,6 +78,9 @@
 11. 点击测试通知，查看企业微信群消息，如果收到如下提示，则代表配置成功；
 
 ![image.png](https://s2.loli.net/2025/05/24/MRWVw2Gxj9mAQPK.png)
+
+
+<a href="https://sm.ms/image/RLHuBIYbjZd7TnS" target="_blank"><img height="600" src="https://s2.loli.net/2025/05/24/RLHuBIYbjZd7TnS.png" ></a>
 
 12. 点击保存设置，关闭软件设置窗口即可。
 
@@ -126,6 +129,9 @@
 
 ## 查看打印机详情
 1. 点击要查看的打印机标签（点击空白处），即可弹出详情窗口；
+
+![image.png](https://s2.loli.net/2025/05/24/faI5lehcF2TEU3O.png)
+
 2. 此窗口可以查看：打印机序列号、IP地址、WiFi强度、设备状态、耗材信息、运行实况、摄像头画面；
 ![printer_info.jpg](https://s2.loli.net/2025/05/24/qJtNakZ2hCwcMnD.jpg)
 3. 下滑窗口，可查看摄像头内容。
@@ -140,9 +146,16 @@
 
 ## 获取打印机访问码
 ### P1S
+![image.png](https://s2.loli.net/2025/05/24/WkYmfxtUrszHq1l.png)
+
+![image.png](https://s2.loli.net/2025/05/24/8XrTRKUhENviJSa.png)
 
 ### A1 & A1 Mini
+![image.png](https://s2.loli.net/2025/05/24/6Va1TYpJn8UNACj.png)
 
+![image.png](https://s2.loli.net/2025/05/24/giUEadH95bFmpM6.png)
+
+![image.png](https://s2.loli.net/2025/05/24/pJvh5GjANUE7sWg.png)
 # 相关逻辑说明
 ## 语音通知开关
 1. 当语音通知开启后，程序接收到一个打印机事件（需要通知的），会阻塞等待用户操作，在此期间，语音会滚动播放。直到用户操作后，才会处理下一个事件。该模式适合设备旁有人时开启；
@@ -172,7 +185,7 @@ python setup.py bdist_msi
 
 # 问题提交
 
-请[点击这里]()，提交你的问题。
+请[点击这里](https://gitee.com/lojzeliu/3dp_manager_client/issues)，提交你的问题。
 
 # 使用开源项目
 1. [bambu-printer-manager](https://github.com/synman/bambu-printer-manager)
