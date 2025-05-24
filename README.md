@@ -34,7 +34,7 @@
 ## 安装**拓竹农场管家**（非必须）
 > **拓竹农场管家** 安装教程请[点击这里查看](https://wiki.bambulab.com/zh/software/bambu-farm-manager)，并按照教程完成安装。建议将**拓竹农场管家**和**3D打印机集群管理系统**安装在一台电脑上。
 ## 安装 **3D打印机集群管理系统**
-1. 点击这里下载最新版本；
+1. [点击这里]()下载最新版本；
 2. 双击启动安装程序，按提示选择安装路径（路径不能包含英文）；
 3. 接下来一直点击下一步即可完成安装。
 
@@ -43,12 +43,27 @@
 
 1. 下载注册企业微信（无需付费认证）；
 2. 创建群聊，至少选择2名要需要接收通知的成员（必须是内部群）；
+
+ <img height="600" src="https://s2.loli.net/2025/05/24/Cl8WfmoKLdRG5D7.jpg" width="300"/>
+
 3. 点击右上角三个点，进入群管理；
 4. 点击**群机器人**；
+
+ <a href="https://sm.ms/image/CrOmcbADywPd6Yh" target="_blank"><img height="600" width="300" src="https://s2.loli.net/2025/05/24/CrOmcbADywPd6Yh.jpg" ></a>
+
 5. 点击**添加机器人**；
+
+
+
 6. 点击右上角新建；
 7. 输入机器人名字，点击添加；
+
+<a href="https://sm.ms/image/ZLDPK5CT2S3gwAx" target="_blank"><img height="600" width="300" src="https://s2.loli.net/2025/05/24/ZLDPK5CT2S3gwAx.jpg" ></a>
+
 8. 点击复制 **Webhook地址**；
+
+<a href="https://sm.ms/image/1uahfjSkp6sMXOC" target="_blank"><img height="600" width="300" src="https://s2.loli.net/2025/05/24/1uahfjSkp6sMXOC.jpg" ></a>
+
 9. 在 **3D打印机集群管理系统** 主窗口，点击右上角设置图标；
 10. 在弹出窗口点击 **通知设置**，在企业微信通知URL输入栏，粘贴刚刚复制的**Webhook地址**；
 11. 点击测试通知，查看企业微信群消息，如果收到如下提示，则代表配置成功；
