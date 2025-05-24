@@ -74,8 +74,9 @@
 ## 查看打印机详情
 1. 点击要查看的打印机标签（点击空白处），即可弹出详情窗口；
 2. 此窗口可以查看：打印机序列号、IP地址、WiFi强度、设备状态、耗材信息、运行实况、摄像头画面；
+![](https://s2.loli.net/2025/05/24/B9IEAfyXUnruDJb.jpg)
 3. 下滑窗口，可查看摄像头内容。
-![](https://gitee.com/lojzeliu/3dp_manager_client/blob/master/doc/imgs/printer_info_camra.png)
+![](https://s2.loli.net/2025/05/24/OpeNKQ8a6PTvMDV.png)
 
 ## 更多便捷功能
 1. 点击顶部操作条的灯光图标，可以统一控制LED灯光开关；
