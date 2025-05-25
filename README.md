@@ -34,7 +34,7 @@
 ## 安装**拓竹农场管家**（非必须）
 > **拓竹农场管家** 安装教程请[点击这里查看](https://wiki.bambulab.com/zh/software/bambu-farm-manager)，并按照教程完成安装。建议将**拓竹农场管家**和**3D打印机集群管理系统**安装在一台电脑上。
 ## 安装 **3D打印机集群管理系统**
-1. [点击这里 （GitHub）](https://github.com/LojzeLiu/3dp_manager_client/releases)下载最新版本；
+1. [点击这里 （GitHub）](https://github.com/LojzeLiu/3dp_manager_client/releases)下载最新版本（无法访问[点击这里（码云）](https://gitee.com/lojzeliu/3dp_manager_client/releases/)下载）；
 2. 双击启动安装程序，按提示选择安装路径（路径不能包含英文）；
 3. 接下来一直点击下一步即可完成安装。
 
