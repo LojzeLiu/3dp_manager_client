@@ -10,7 +10,7 @@ class BambuPrinterService:
     拓竹3D打印机功能封装
     """
 
-    def __init__(self, bambu_config: models.BambuConfInfo, msg_handle = None):
+    def __init__(self, bambu_config: models.BambuConfInfo, msg_handle=None):
         self._bambu_config = bambu_config
         self._bambu_session = None
         self._printer_state = models.PrinterInfo(bambu_config.name, bambu_config.serial_number)
@@ -21,7 +21,6 @@ class BambuPrinterService:
             self._msg_handle = MsgHandle(send_url)
         else:
             self._msg_handle = msg_handle
-
 
     def start_session(self):
         curr_conf = BambuConfig(self._bambu_config.hostname, self._bambu_config.access_code,
@@ -42,10 +41,6 @@ class BambuPrinterService:
         """
         self._msg_handle.stop()  # 停止消息工作队列
         self._quit_session()
-
-    # def switch_voice_info(self):
-    #     """开关语音通知"""
-    #     return self._msg_handle.switch_voice()
 
     def _quit_session(self):
         if self._bambu_session is None:
@@ -76,7 +71,6 @@ class BambuPrinterService:
         if printer.gcode_state == "FAILED" and self._printer_state.last_gcode_state == "RUNNING":
             # 发生错误，上一次是在运行中
             msg = f'{self._printer_state.name} 发生错误，请即时处理！'
-            print('printer.hms_data:', printer.hms_data)
             if hms_desc is not None:
                 msg = f'{self._printer_state.name}，{hms_desc}，请即时处理！'
         elif printer.gcode_state == "FINISH" and self._printer_state.last_gcode_state == "RUNNING":
@@ -85,16 +79,15 @@ class BambuPrinterService:
                 msg = f'{self._printer_state.name}，{hms_desc}，请即时处理！'
         elif printer.gcode_state == "IDLE" and self._printer_state.last_gcode_state == "RUNNING":
             msg = f'{self._printer_state.name} 设备空闲，请即时安排工作！'
-            print('printer.hms_data:', printer.hms_data)
             if hms_desc is not None:
                 msg = f'{self._printer_state.name}，{hms_desc}，请即时处理！'
         elif printer.gcode_state == "PAUSE" and self._printer_state.last_gcode_state == "RUNNING":
-            print('printer.hms_data:', printer.hms_data)
             msg = f'{self._printer_state.name} 设备暂停，请即时查看处理！'
             if hms_desc is not None:
                 msg = f'{self._printer_state.name}，{hms_desc}，请即时处理！'
         if msg != "":
             self._msg_handle.add_message(msg, 1)
+        self._printer_state.last_gcode_state = printer.gcode_state
 
     def open_light(self):
         if self._bambu_session:

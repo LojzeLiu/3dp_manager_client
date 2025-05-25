@@ -148,7 +148,6 @@ class PrinterInfo(object):
             self.spools = printer.spools
             if self.on_update is not None:
                 self.on_update(self)
-        self.last_gcode_state = printer.gcode_state
 
     def get_sign_title(self):
         wifi_signal = self.wifi_signal

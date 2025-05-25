@@ -34,7 +34,7 @@ class MsgHandle:
         self._wc_send_url = wc_send_url
         self._open_voice = True
 
-    def update_conf(self, wc_send_url:str):
+    def update_conf(self, wc_send_url: str):
         self._wc_send_url = wc_send_url
 
     def switch_voice(self) -> bool:
@@ -135,8 +135,8 @@ class MsgHandle:
         """
         # 向消息队列添加消息
         msg = MsgInfo(message, level)
-        self.loop.call_soon_threadsafe(self.msg_queue.put_nowait, msg)  # 使用 call_soon_threadsafe 确保线程安全
-        self.send_loop.call_soon_threadsafe(self.send_msg_queue.put_nowait, msg)  # 使用 call_soon_threadsafe 确保线程安全
+        self.loop.call_soon_threadsafe(self.msg_queue.put_nowait, msg)
+        self.send_loop.call_soon_threadsafe(self.send_msg_queue.put_nowait, msg)
 
     def send_txt_msg_to_wechat(self, msg):
         if not self._wc_send_url:
